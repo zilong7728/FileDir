@@ -117,6 +117,19 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
   .f-date,.f-size{display:none}
   .preview.open{width:100%;position:absolute;top:var(--hh);bottom:36px;right:0;z-index:15}
 }
+.folder-arrow {
+  cursor: pointer;
+  display: inline-flex;
+  width: 20px;
+  margin-left: -4px;
+  user-select: none;
+}
+.tree-item {
+  /* 保证原来的 flex 布局不被打乱 */
+  flex-wrap: wrap;
+}
+
+
 </style>
 </head>
 <body>
@@ -262,15 +275,22 @@ function escapeHtml(str) { return str.replace(/[&<>]/g, m => m === '&' ? '&amp;'
 function parseSize(s) { if (!s || s === '-') return -1; const n = parseFloat(s); if (isNaN(n)) return -1; if (/KB/i.test(s)) return n * 1024; if (/MB/i.test(s)) return n * 1048576; if (/GB/i.test(s)) return n * 1073741824; return n; }
 
 // 构建树形结构（支持根目录为空字符串）
+// --- 替换 buildTree、renderTree、buildSidebar，并新增 toggleFolder ---
+
 function buildTree(foldersList) {
+  // 构建嵌套对象，保留完整路径
   const tree = {};
   for (const f of foldersList) {
-    const parts = f.rel === "" ? [] : f.rel.split('/');
+    if (f.rel === "") continue; // 跳过根目录（根目录单独处理）
+    const parts = f.rel.split('/');
     let current = tree;
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
       if (!current[part]) {
-        current[part] = { fullPath: parts.slice(0, i + 1).join('/'), children: {} };
+        current[part] = {
+          fullPath: parts.slice(0, i + 1).join('/'),
+          children: {}
+        };
       }
       current = current[part].children;
     }
@@ -278,30 +298,90 @@ function buildTree(foldersList) {
   return tree;
 }
 
-function renderTree(node, level = 0) {
+function renderTree(node, level = 0, parentPath = '') {
   let html = '';
   for (const [name, data] of Object.entries(node)) {
-    const fileCount = allFiles.filter(f => f.folder === data.fullPath).length;
+    const folderKey = data.fullPath;
+    const fileCount = allFiles.filter(f => f.folder === folderKey).length;
+    // 使用 data-folder 存储路径，data-level 存储层级，并添加展开/折叠按钮
     html += `
-      <div class="tree-item" data-folder="${data.fullPath}" onclick="selectFolder(this)" style="padding-left: ${16 + level * 20}px">
-        <i class="ti ti-folder"></i>
-        <span class="tree-nm">${escapeHtml(name)}</span>
-        <span class="tree-cnt">${fileCount}</span>
+      <div class="tree-folder" data-folder-path="${folderKey}">
+        <div class="tree-item" data-folder="${folderKey}">
+          <span class="folder-arrow" onclick="toggleFolderOnly(event, '${folderKey}')">
+            <i class="ti ti-chevron-right" id="arrow-${folderKey.replace(/\//g, '-')}"></i>
+          </span>
+          <i class="ti ti-folder" onclick="selectFolderByPath('${folderKey}')"></i>
+          <span class="tree-nm" onclick="selectFolderByPath('${folderKey}')">${escapeHtml(name)}</span>
+          <span class="tree-cnt">${fileCount}</span>
+        </div>
+        <div class="folder-children" id="children-${folderKey.replace(/\//g, '-')}" style="display: none;">
+          ${renderTree(data.children, level + 1, folderKey)}
+        </div>
       </div>
     `;
-    html += renderTree(data.children, level + 1);
   }
   return html;
 }
 
+function toggleFolderOnly(event, folderPath) {
+  event.stopPropagation();
+  const arrowSpan = event.currentTarget;
+  const arrowIcon = arrowSpan.querySelector('i');
+  const childrenDiv = document.getElementById(`children-${folderPath.replace(/\//g, '-')}`);
+  if (!childrenDiv) return;
+  const isVisible = childrenDiv.style.display !== 'none';
+  if (isVisible) {
+    childrenDiv.style.display = 'none';
+    arrowIcon.classList.remove('ti-chevron-down');
+    arrowIcon.classList.add('ti-chevron-right');
+  } else {
+    childrenDiv.style.display = 'block';
+    arrowIcon.classList.remove('ti-chevron-right');
+    arrowIcon.classList.add('ti-chevron-down');
+  }
+}
+
+function selectFolderByPath(folderPath) {
+  // 找到对应的 tree-item 元素并模拟点击选中
+  const targetItem = document.querySelector(`.tree-item[data-folder="${folderPath}"]`);
+  if (targetItem) {
+    selectFolder(targetItem);
+  }
+}
+
 function buildSidebar() {
   const container = document.getElementById('folderTree');
-  if (folders.length === 0) {
+  if (folders.length <= 1) { // 只有根目录（空字符串）
     container.innerHTML = '<div class="tree-item" style="color:var(--muted)">暂无子文件夹</div>';
     return;
   }
   const tree = buildTree(folders);
   container.innerHTML = renderTree(tree);
+  
+  // 默认展开第一级文件夹（可选，如果不想展开任何文件夹，可注释）
+  // 这里不自动展开，保持全部折叠
+}
+
+// 新增：展开/折叠切换函数
+function toggleFolder(event, folderPath) {
+  event.stopPropagation();
+  const arrow = event.currentTarget.querySelector('.folder-arrow');
+  const childrenDiv = document.getElementById(`children-${folderPath.replace(/\//g, '-')}`);
+  if (!childrenDiv) return;
+  const isVisible = childrenDiv.style.display !== 'none';
+  if (isVisible) {
+    childrenDiv.style.display = 'none';
+    arrow.classList.remove('ti-chevron-down');
+    arrow.classList.add('ti-chevron-right');
+  } else {
+    childrenDiv.style.display = 'block';
+    arrow.classList.remove('ti-chevron-right');
+    arrow.classList.add('ti-chevron-down');
+  }
+  // 不改变文件列表的选中状态，仅切换文件夹展开
+  // 如果希望点击文件夹文字也同时选中并显示文件，需要额外调用 selectFolder
+  // 这里通过单独点击文件夹图标或文字来展开/折叠，但也会触发 selectFolder，需要分离。
+  // 更好的做法：将展开按钮与选中逻辑分开。下面用改进方式：点击 chevron 只展开，点击其他地方选中文件夹。
 }
 
 // 数据加载
