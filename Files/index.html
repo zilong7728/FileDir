@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Engineering Library</title>
+
+<style>
+body {
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: Arial;
+}
+
+.sidebar {
+    width: 280px;
+    background: #161b22;
+    overflow: auto;
+    border-right: 1px solid #30363d;
+    padding: 10px;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.top {
+    padding: 10px;
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+}
+
+input {
+    width: 240px;
+    padding: 6px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    color: white;
+    border-radius: 6px;
+}
+
+.tree-item {
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.tree-item:hover {
+    background: #21262d;
+}
+
+.file {
+    color: #58a6ff;
+    cursor: pointer;
+}
+
+.content {
+    padding: 16px;
+    overflow: auto;
+}
+
+.card {
+    padding: 10px;
+    margin: 6px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar" id="tree"></div>
+
+<div class="main">
+    <div class="top">
+        <input id="search" placeholder="Search files...">
+    </div>
+    <div class="content" id="content"></div>
+</div>
+
+<script>
+
+let data = {};
+
+fetch("index.json")
+.then(r => r.json())
+.then(j => {
+    data = j;
+    renderTree();
+});
+
+function renderTree() {
+    const tree = document.getElementById("tree");
+
+    function walk(node, path = "") {
+        for (let k in node) {
+
+            if (k === "_files") continue;
+
+            let div = document.createElement("div");
+            div.className = "tree-item";
+
+            div.innerText = "📁 " + k;
+
+            div.onclick = () => showFolder(node[k]);
+
+            tree.appendChild(div);
+
+            if (node[k]._dirs) {
+                walk(node[k]._dirs, path + k + "/");
+            }
+        }
+    }
+
+    walk(data);
+}
+
+function showFolder(folder) {
+    const c = document.getElementById("content");
+    c.innerHTML = "";
+
+    if (!folder._files) return;
+
+    for (let f in folder._files) {
+
+        let div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+            📄 <a href="${folder._files[f]}" target="_blank">${f}</a>
+        `;
+
+        c.appendChild(div);
+    }
+}
+
+/* 搜索 */
+document.getElementById("search").oninput = function () {
+    let v = this.value.toLowerCase();
+    document.querySelectorAll(".card").forEach(c => {
+        c.style.display = c.innerText.toLowerCase().includes(v) ? "" : "none";
+    });
+};
+
+</script>
+
+</body>
+</html>
