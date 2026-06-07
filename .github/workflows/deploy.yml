@@ -15,11 +15,6 @@ jobs:
         with:
           FOLDER: Files
 
-      - name: Inject custom portal as root index
-        run: |
-          sudo chmod 644 Files/index.html
-          sudo cp -f .github/_portal.html Files/index.html
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
         with:
