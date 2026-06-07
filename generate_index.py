@@ -22,27 +22,20 @@ def get_file_info(file_path, base_dir):
     full_path = os.path.join(base_dir, file_path)
     rel_path = file_path.replace("\\", "/")
     
-    # 获取文件大小
     size_bytes = os.path.getsize(full_path)
     size_str = get_file_size_str(size_bytes)
     
-    # 获取修改时间
     mtime = os.path.getmtime(full_path)
     date_str = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
     
-    # 提取文件名和扩展名
     name = os.path.basename(file_path)
     ext = name.split('.')[-1].lower() if '.' in name else ''
     
-    # 提取文件夹路径（去掉 Files/ 前缀）
     folder_path = os.path.dirname(file_path).replace("\\", "/")
-    if folder_path == "":
-        folder = "/"
-    else:
-        folder = "/" + folder_path
+    folder = "/" + folder_path if folder_path else "/"
     
-    # 构建完整URL（部署后的访问地址）
-    url = f"https://zilong7728.github.io/FileDir/{rel_path}"
+    # ✅ 修正URL：加上 Files/ 前缀
+    url = f"https://zilong7728.github.io/FileDir/Files/{rel_path}"
     
     return {
         "name": name,
@@ -56,19 +49,15 @@ def get_file_info(file_path, base_dir):
     }
 
 def scan_files(base_dir):
-    """递归扫描目录，返回文件列表"""
     files = []
     base_path = Path(base_dir)
-    
     if not base_path.exists():
         print(f"错误：目录 '{base_dir}' 不存在")
         return files
-    
     for file_path in base_path.rglob("*"):
         if file_path.is_file():
             rel_path = file_path.relative_to(base_path)
             files.append(get_file_info(str(rel_path), base_dir))
-    
     return files
 
 def main():
@@ -76,7 +65,6 @@ def main():
     all_files = scan_files(BASE_DIR)
     print(f"找到 {len(all_files)} 个文件")
     
-    # 按修改时间排序
     all_files.sort(key=lambda x: x["date"], reverse=True)
     
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
@@ -84,7 +72,6 @@ def main():
     
     print(f"已生成 {OUTPUT_JSON}")
     
-    # 统计信息
     print("\n文件类型统计:")
     ext_count = {}
     for f in all_files:
