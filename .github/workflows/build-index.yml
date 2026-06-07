@@ -23,5 +23,5 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add index.json
-          git commit -m "update index" || exit 0
-          git push
+          git commit -m "update index" || echo "no changes"
+          git push --force
