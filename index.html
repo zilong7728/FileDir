@@ -1,161 +1,912 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Engineering Library</title>
-
+<title>工程资料库 Pro</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ── Reset & Variables ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sidebar-w: 220px;
+  --header-h: 50px;
+  --accent: #185FA5;
+  --accent-light: #E6F1FB;
+  --bg: #F5F4F0;
+  --surface: #ffffff;
+  --border: rgba(0,0,0,0.09);
+  --border-strong: rgba(0,0,0,0.16);
+  --text: #1a1a18;
+  --muted: #888780;
+  --font: 'IBM Plex Mono', 'Courier New', monospace;
+  --radius: 6px;
+  --radius-lg: 8px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1918;
+    --surface: #222220;
+    --border: rgba(255,255,255,0.09);
+    --border-strong: rgba(255,255,255,0.18);
+    --text: #eeecea;
+    --muted: #888780;
+    --accent-light: #0C2A40;
+  }
+}
+html, body { height: 100%; overflow: hidden; }
 body {
-    margin: 0;
-    background: #0d1117;
-    color: #c9d1d9;
-    font-family: Segoe UI, Arial;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
-/* 顶部栏 */
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 20px;
-    background: #161b22;
-    border-bottom: 1px solid #30363d;
+/* ── Header ── */
+header {
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 20;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  white-space: nowrap;
+  color: var(--text);
+}
+.logo i { color: var(--accent); font-size: 20px; }
+.logo sub { font-size: 9px; font-weight: 400; color: var(--muted); vertical-align: top; margin-top: 3px; letter-spacing: .05em; }
+.search-wrap {
+  flex: 1;
+  max-width: 380px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 0 10px;
+  height: 32px;
+}
+.search-wrap i { color: var(--muted); font-size: 15px; flex-shrink: 0; }
+#searchInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font);
+  font-size: 12px;
+  color: var(--text);
+  width: 100%;
+}
+#searchInput::placeholder { color: var(--muted); }
+.ext-filters { display: flex; gap: 5px; margin-left: auto; }
+.ext-tag {
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid var(--border-strong);
+  font-size: 11px;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--muted);
+  transition: all .12s;
+  user-select: none;
+}
+.ext-tag.active {
+  background: var(--accent-light);
+  border-color: #378ADD;
+  color: var(--accent);
+  font-weight: 500;
+}
+.header-actions { display: flex; gap: 6px; }
+.icon-btn {
+  width: 32px; height: 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background .12s;
+}
+.icon-btn:hover { background: var(--bg); color: var(--text); }
+
+/* ── Main Layout ── */
+.main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
-.title {
-    font-size: 16px;
-    font-weight: 600;
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.sidebar-section { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.sidebar-label {
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 6px 14px 4px;
+}
+.tree-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text);
+  border-radius: 0;
+  transition: background .1s;
+  border-left: 2px solid transparent;
+}
+.tree-item:hover { background: var(--bg); }
+.tree-item.active {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-weight: 500;
+  border-left-color: var(--accent);
+}
+.tree-item i { font-size: 16px; color: var(--muted); flex-shrink: 0; }
+.tree-item.active i { color: var(--accent); }
+.tree-count {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 1px 6px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+.tree-item.active .tree-count { background: rgba(24,95,165,.12); color: var(--accent); }
+
+/* ── Content ── */
+.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.content-header {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  flex: 1;
+}
+.breadcrumb .bc-current { color: var(--text); font-weight: 500; }
+.file-count-badge {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--border);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.sort-select {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-family: var(--font);
+  font-size: 11px;
+  color: var(--text);
+  padding: 4px 8px;
+  cursor: pointer;
+  outline: none;
 }
 
-/* 搜索 */
-.search input {
-    width: 240px;
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #30363d;
-    background: #0d1117;
-    color: #c9d1d9;
+/* ── File List ── */
+.file-list-wrap { flex: 1; overflow-y: auto; }
+.file-list { padding: 8px 12px 24px; }
+.list-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 10px 4px 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2px;
+}
+.list-section-header i { font-size: 13px; }
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .1s;
+  border-bottom: 0.5px solid var(--border);
+}
+.file-row:last-child { border-bottom: none; }
+.file-row:hover { background: var(--surface); }
+.file-row.selected { background: var(--accent-light); }
+.file-icon {
+  width: 30px; height: 30px;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 15px;
+}
+.icon-pdf { background: #FCEBEB; color: #A32D2D; }
+.icon-ibs { background: #E1F5EE; color: #0F6E56; }
+.icon-zip { background: #FAEEDA; color: #854F0B; }
+.icon-img { background: #EEEDFE; color: #534AB7; }
+.icon-dir { background: var(--accent-light); color: var(--accent); }
+.icon-other { background: var(--bg); color: var(--muted); }
+.file-info { flex: 1; min-width: 0; }
+.file-name { font-size: 12px; font-weight: 500; letter-spacing: -0.2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-path { font-size: 11px; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cat-badge {
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.badge-Datasheet { background: #E6F1FB; color: #185FA5; }
+.badge-IBIS { background: #E1F5EE; color: #0F6E56; }
+.badge-PCB { background: #FAEEDA; color: #854F0B; }
+.badge-Tools { background: #EEEDFE; color: #534AB7; }
+.badge-Other { background: #F1EFE8; color: #5F5E5A; }
+.file-size { font-size: 11px; color: var(--muted); width: 55px; text-align: right; flex-shrink: 0; }
+.file-date { font-size: 11px; color: var(--muted); width: 90px; text-align: right; flex-shrink: 0; }
+.new-badge {
+  font-size: 9px;
+  background: #E1F5EE;
+  color: #0F6E56;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  font-weight: 600;
+  letter-spacing: .05em;
 }
 
-/* 主体 */
-.container {
-    padding: 20px;
+/* ── Empty State ── */
+.empty-state {
+  padding: 48px 16px;
+  text-align: center;
+  color: var(--muted);
 }
+.empty-state i { font-size: 36px; display: block; margin-bottom: 10px; }
+.empty-state p { font-size: 13px; }
 
-/* 卡片布局 */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 14px;
+/* ── Preview Panel ── */
+.preview-panel {
+  width: 0;
+  min-width: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  transition: width .2s ease, min-width .2s ease;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
-
-/* 文件卡片 */
-.card {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 10px;
-    padding: 12px;
-    transition: 0.2s;
+.preview-panel.open { width: 260px; min-width: 260px; }
+.preview-hdr {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
-
-.card:hover {
-    transform: translateY(-2px);
-    border-color: #58a6ff;
+.preview-hdr-title { flex: 1; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.close-btn { cursor: pointer; color: var(--muted); font-size: 16px; line-height: 1; flex-shrink: 0; }
+.close-btn:hover { color: var(--text); }
+.preview-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.preview-thumb {
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border-strong);
+  flex-shrink: 0;
 }
-
-.card a {
-    color: #58a6ff;
-    text-decoration: none;
-    font-weight: 500;
-    word-break: break-all;
+.preview-thumb i { font-size: 44px; color: var(--muted); }
+.preview-thumb img { width: 100%; height: 100%; object-fit: contain; border-radius: var(--radius-lg); }
+.meta-grid { display: flex; flex-direction: column; gap: 6px; }
+.meta-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; }
+.meta-row span:first-child { color: var(--muted); }
+.meta-row span:last-child { font-weight: 500; }
+.preview-actions { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .1s, color .1s;
+  text-decoration: none;
 }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn-primary:hover { background: #0C447C; }
+.btn-ghost { background: var(--surface); color: var(--text); }
+.btn-ghost:hover { background: var(--bg); }
 
-/* 标签 */
-.tag {
-    display: inline-block;
-    margin-top: 6px;
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 4px;
+/* ── Recent Bar ── */
+.recent-bar {
+  padding: 6px 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  flex-shrink: 0;
+  overflow-x: auto;
 }
+.recent-bar::-webkit-scrollbar { display: none; }
+.recent-bar strong { white-space: nowrap; }
+.recent-chip {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  color: var(--text);
+  white-space: nowrap;
+  transition: background .1s;
+  flex-shrink: 0;
+}
+.recent-chip:hover { background: var(--border); }
+.recent-chip i { font-size: 13px; color: var(--muted); }
 
-.pdf { background: #3b1d1d; color: #ff7b72; }
-.zip { background: #2b1a3b; color: #d2a8ff; }
-.img { background: #1b2a3a; color: #79c0ff; }
-.folder { background: #1b3a2a; color: #3fb950; }
-.other { background: #2a2f3a; color: #8b949e; }
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
 
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .sidebar { display: none; }
+  .ext-filters .ext-tag { display: none; }
+  .ext-filters .ext-tag:nth-child(-n+3) { display: block; }
+  .file-date, .file-size { display: none; }
+  .preview-panel.open { width: 100%; position: absolute; top: var(--header-h); bottom: 36px; right: 0; z-index: 15; }
+}
 </style>
 </head>
-
 <body>
 
-<div class="header">
-    <div class="title">📁 Engineering Data Library</div>
-    <div class="search">
-        <input id="search" placeholder="Search files...">
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="logo">
+    <i class="ti ti-circuit-board" aria-hidden="true"></i>
+    工程资料库 <sub>PRO</sub>
+  </div>
+
+  <div class="search-wrap">
+    <i class="ti ti-search" aria-hidden="true"></i>
+    <input type="text" id="searchInput" placeholder="搜索文件名（支持模糊匹配）…" autocomplete="off" spellcheck="false">
+    <i class="ti ti-x" id="clearSearch" aria-hidden="true" style="cursor:pointer;display:none;color:var(--muted);font-size:14px"></i>
+  </div>
+
+  <div class="ext-filters" id="extFilters">
+    <div class="ext-tag active" data-ext="">全部</div>
+    <div class="ext-tag" data-ext="pdf">PDF</div>
+    <div class="ext-tag" data-ext="ibs">IBS</div>
+    <div class="ext-tag" data-ext="zip">ZIP</div>
+    <div class="ext-tag" data-ext="img">图片</div>
+  </div>
+
+  <div class="header-actions">
+    <div class="icon-btn" title="刷新" onclick="loadDirectory()"><i class="ti ti-refresh" aria-hidden="true"></i></div>
+    <div class="icon-btn" id="toggleViewBtn" title="切换视图"><i class="ti ti-layout-list" aria-hidden="true"></i></div>
+  </div>
+</header>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">目录树</div>
+      <div class="tree-item active" data-folder="" data-label="全部文件" onclick="selectFolder(this)">
+        <i class="ti ti-layout-grid" aria-hidden="true"></i> 全部文件
+        <span class="tree-count" id="cnt-all">—</span>
+      </div>
+      <div id="folderTree"></div>
     </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">分类标签</div>
+      <div class="tree-item" data-cat="Datasheet" onclick="selectCat(this)">
+        <i class="ti ti-file-description" aria-hidden="true"></i> Datasheet
+        <span class="tree-count" id="cnt-Datasheet">0</span>
+      </div>
+      <div class="tree-item" data-cat="IBIS" onclick="selectCat(this)">
+        <i class="ti ti-wave-sine" aria-hidden="true"></i> IBIS
+        <span class="tree-count" id="cnt-IBIS">0</span>
+      </div>
+      <div class="tree-item" data-cat="PCB" onclick="selectCat(this)">
+        <i class="ti ti-circuit-board" aria-hidden="true"></i> PCB
+        <span class="tree-count" id="cnt-PCB">0</span>
+      </div>
+      <div class="tree-item" data-cat="Tools" onclick="selectCat(this)">
+        <i class="ti ti-tool" aria-hidden="true"></i> Tools
+        <span class="tree-count" id="cnt-Tools">0</span>
+      </div>
+      <div class="tree-item" data-cat="Other" onclick="selectCat(this)">
+        <i class="ti ti-tag" aria-hidden="true"></i> Other
+        <span class="tree-count" id="cnt-Other">0</span>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">最近更新</div>
+      <div id="sidebarRecent"></div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <div class="content">
+    <div class="content-header">
+      <div class="breadcrumb">
+        <i class="ti ti-home" style="font-size:13px" aria-hidden="true"></i>
+        <span>/</span>
+        <span class="bc-current" id="folderLabel">全部文件</span>
+      </div>
+      <span class="file-count-badge" id="fileCountBadge">0 个文件</span>
+      <select class="sort-select" id="sortSelect" onchange="renderList()">
+        <option value="date">按更新时间</option>
+        <option value="name">按文件名</option>
+        <option value="size">按文件大小</option>
+      </select>
+    </div>
+
+    <div class="file-list-wrap">
+      <div class="file-list" id="fileList">
+        <div class="empty-state"><i class="ti ti-loader" aria-hidden="true"></i><p>正在加载目录…</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Panel -->
+  <aside class="preview-panel" id="previewPanel" role="complementary" aria-label="文件预览">
+    <div class="preview-hdr">
+      <span class="preview-hdr-title" id="previewTitle">选择文件预览</span>
+      <span class="close-btn" id="closePreview" role="button" aria-label="关闭预览">
+        <i class="ti ti-x" aria-hidden="true"></i>
+      </span>
+    </div>
+    <div class="preview-body">
+      <div class="preview-thumb" id="previewThumb">
+        <i class="ti ti-file" id="previewThumbIcon" aria-hidden="true"></i>
+      </div>
+      <div class="meta-grid">
+        <div class="meta-row"><span>文件名</span><span id="pm-name" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span></div>
+        <div class="meta-row"><span>类型</span><span id="pm-type">—</span></div>
+        <div class="meta-row"><span>大小</span><span id="pm-size">—</span></div>
+        <div class="meta-row"><span>修改时间</span><span id="pm-date">—</span></div>
+        <div class="meta-row"><span>分类</span><span id="pm-cat">—</span></div>
+        <div class="meta-row"><span>路径</span><span id="pm-path" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--muted)">—</span></div>
+      </div>
+      <div class="preview-actions">
+        <a class="btn btn-primary" id="previewOpenBtn" href="#" target="_blank">
+          <i class="ti ti-eye" aria-hidden="true"></i> 在线预览
+        </a>
+        <a class="btn btn-ghost" id="previewDownBtn" href="#" download>
+          <i class="ti ti-download" aria-hidden="true"></i> 下载文件
+        </a>
+      </div>
+    </div>
+  </aside>
+
 </div>
 
-<div class="container">
-    <div id="grid" class="grid">
-        <!-- directory-listing 生成内容会在这里 -->
-    </div>
+<!-- ══ RECENT BAR ══ -->
+<div class="recent-bar" id="recentBar">
+  <strong><i class="ti ti-clock" aria-hidden="true"></i> 最近：</strong>
+  <span id="recentChips" style="display:flex;gap:6px;overflow-x:auto">—</span>
 </div>
 
 <script>
+// ── Config ──────────────────────────────────────────────────────
+const BASE_URL = window.location.href.replace(/\/$/, '');
 
-/* 搜索过滤 */
-document.getElementById("search").addEventListener("input", function () {
-    let v = this.value.toLowerCase();
-    document.querySelectorAll(".card").forEach(c => {
-        c.style.display = c.innerText.toLowerCase().includes(v) ? "" : "none";
-    });
-});
+// Extension → category mapping (customize as needed)
+const EXT_CAT = {
+  ibs: 'IBIS', ibis: 'IBIS',
+  pdf: 'Datasheet',
+  sch: 'PCB', brd: 'PCB', kicad_pcb: 'PCB', gbr: 'PCB', drl: 'PCB',
+  zip: 'Tools', exe: 'Tools', py: 'Tools', sh: 'Tools',
+  png: 'Other', jpg: 'Other', jpeg: 'Other', gif: 'Other', svg: 'Other',
+};
+const EXT_IMG_TYPES = ['png','jpg','jpeg','gif','webp','svg'];
+const IMG_EXT_FILTER = ['png','jpg','jpeg','gif','webp','svg'];
 
-/* 文件类型识别 */
-function getType(name) {
-    name = name.toLowerCase();
-    if (name.endsWith(".pdf")) return "pdf";
-    if (name.endsWith(".zip") || name.endsWith(".rar")) return "zip";
-    if (name.endsWith(".png") || name.endsWith(".jpg")) return "img";
-    if (!name.includes(".")) return "folder";
-    return "other";
-}
-
-/* 美化 directory listing */
-function enhance() {
-    const container = document.getElementById("grid");
-
-    // 兼容目录列表（a标签）
-    let links = document.querySelectorAll("a");
-
-    links.forEach(a => {
-        let name = a.innerText.trim();
-
-        if (!name || name === "../") return;
-
-        let type = getType(name);
-
-        let card = document.createElement("div");
-        card.className = "card";
-
-        card.innerHTML = `
-            <div>📄</div>
-            <a href="${a.href}">${name}</a>
-            <div class="tag ${type}">${type.toUpperCase()}</div>
-        `;
-
-        container.appendChild(card);
-    });
-}
-
-/* 等待 GitHub Pages 渲染 */
-window.onload = () => {
-    setTimeout(enhance, 300);
+// Icon mapping by extension
+const EXT_ICON = {
+  pdf: 'ti-file-type-pdf',
+  ibs: 'ti-wave-sine', ibis: 'ti-wave-sine',
+  zip: 'ti-file-zip', rar: 'ti-file-zip', gz: 'ti-file-zip',
+  png: 'ti-photo', jpg: 'ti-photo', jpeg: 'ti-photo', gif: 'ti-photo', svg: 'ti-photo', webp: 'ti-photo',
+  py: 'ti-brand-python', js: 'ti-brand-javascript', sh: 'ti-terminal',
+  xlsx: 'ti-file-spreadsheet', csv: 'ti-file-spreadsheet',
+  doc: 'ti-file-word', docx: 'ti-file-word',
+  txt: 'ti-file-text', md: 'ti-markdown',
+};
+const EXT_COLOR_CLS = {
+  pdf: 'icon-pdf',
+  ibs: 'icon-ibs', ibis: 'icon-ibs',
+  zip: 'icon-zip', rar: 'icon-zip', gz: 'icon-zip',
+  png: 'icon-img', jpg: 'icon-img', jpeg: 'icon-img', gif: 'icon-img', svg: 'icon-img', webp: 'icon-img',
 };
 
+// ── State ───────────────────────────────────────────────────────
+let allFiles   = [];   // {name, path, size, date, ext, cat, isDir, url}
+let folders    = [];   // unique folder paths
+let filterFolder = '';
+let filterExt    = '';
+let filterCat    = '';
+let searchQ      = '';
+let recentFiles  = [];
+
+// ── Helpers ─────────────────────────────────────────────────────
+function getExt(name) {
+  const m = name.match(/\.([^.]+)$/);
+  return m ? m[1].toLowerCase() : '';
+}
+function getCat(ext) { return EXT_CAT[ext] || 'Other'; }
+function getIcon(ext, isDir) {
+  if (isDir) return 'ti-folder';
+  return EXT_ICON[ext] || 'ti-file';
+}
+function getColorCls(ext, isDir) {
+  if (isDir) return 'icon-dir';
+  return EXT_COLOR_CLS[ext] || 'icon-other';
+}
+function formatSize(bytes) {
+  if (!bytes || bytes < 0) return '—';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  if (bytes < 1073741824) return (bytes/1048576).toFixed(1) + ' MB';
+  return (bytes/1073741824).toFixed(2) + ' GB';
+}
+function formatDate(d) {
+  if (!d) return '—';
+  return d.replace('T', ' ').slice(0, 16);
+}
+function daysSince(d) {
+  if (!d) return 9999;
+  return Math.floor((Date.now() - new Date(d)) / 86400000);
+}
+function extFilter(f) {
+  if (!filterExt) return true;
+  if (filterExt === 'img') return IMG_EXT_FILTER.includes(f.ext);
+  return f.ext === filterExt;
+}
+
+// ── Directory Loader ─────────────────────────────────────────────
+// This Action generates index.html files per directory with <table> listing.
+// We scrape the current page and subdirectory index.html files.
+
+async function parseIndexPage(url) {
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    const rows = doc.querySelectorAll('table tr, .listing tr');
+    const items = [];
+    rows.forEach(row => {
+      const links = row.querySelectorAll('a');
+      links.forEach(a => {
+        const href = a.getAttribute('href');
+        if (!href || href === '../' || href === './' || href.startsWith('?') || href.startsWith('#')) return;
+        const isDir = href.endsWith('/');
+        const cells = row.querySelectorAll('td');
+        let size = '', date = '';
+        if (cells.length >= 3) { size = cells[1]?.textContent.trim(); date = cells[2]?.textContent.trim(); }
+        items.push({ href, isDir, size, date });
+      });
+    });
+    // Also try <li> style listings
+    if (items.length === 0) {
+      doc.querySelectorAll('li a, .file-list a').forEach(a => {
+        const href = a.getAttribute('href');
+        if (!href || href === '../' || href === './') return;
+        items.push({ href, isDir: href.endsWith('/'), size: '', date: '' });
+      });
+    }
+    return items;
+  } catch(e) { return []; }
+}
+
+async function crawl(baseUrl, folderPath, depth) {
+  if (depth > 4) return;
+  const items = await parseIndexPage(baseUrl + folderPath);
+  for (const item of items) {
+    const fullPath = folderPath + item.href;
+    const fullUrl  = baseUrl + fullPath;
+    if (item.isDir) {
+      if (!folders.includes(folderPath + item.href.replace(/\/$/, ''))) {
+        folders.push(folderPath + item.href.replace(/\/$/, ''));
+      }
+      await crawl(baseUrl, fullPath, depth + 1);
+    } else {
+      const name = item.href.split('/').pop();
+      const ext  = getExt(name);
+      const cat  = getCat(ext);
+      const dateStr = item.date || '';
+      allFiles.push({
+        name, path: folderPath.replace(/^\//, '') + name,
+        folder: folderPath.replace(/^\//, '').replace(/\/$/, '') || '/',
+        size: item.size,
+        sizeBytes: parseSize(item.size),
+        date: dateStr,
+        days: daysSince(dateStr),
+        ext, cat,
+        isDir: false,
+        url: fullUrl,
+      });
+    }
+  }
+}
+
+function parseSize(s) {
+  if (!s) return -1;
+  s = s.trim();
+  const n = parseFloat(s);
+  if (isNaN(n)) return -1;
+  if (/KB/i.test(s)) return n * 1024;
+  if (/MB/i.test(s)) return n * 1048576;
+  if (/GB/i.test(s)) return n * 1073741824;
+  return n;
+}
+
+async function loadDirectory() {
+  allFiles = []; folders = [];
+  document.getElementById('fileList').innerHTML =
+    '<div class="empty-state"><i class="ti ti-loader" aria-hidden="true"></i><p>正在扫描目录…</p></div>';
+  await crawl(BASE_URL, '/', 0);
+  if (allFiles.length === 0) {
+    // Fallback: just parse this page directly
+    const items = await parseIndexPage(BASE_URL + '/');
+    items.filter(i => !i.isDir).forEach(item => {
+      const name = item.href.split('/').pop();
+      const ext  = getExt(name);
+      allFiles.push({
+        name, path: name, folder: '/', size: item.size,
+        sizeBytes: parseSize(item.size), date: item.date || '',
+        days: daysSince(item.date), ext, cat: getCat(ext),
+        isDir: false, url: BASE_URL + '/' + name,
+      });
+    });
+  }
+  recentFiles = [...allFiles].sort((a,b) => a.days - b.days).slice(0, 8);
+  buildSidebar();
+  updateCounts();
+  renderList();
+  renderRecentBar();
+}
+
+// ── Sidebar ──────────────────────────────────────────────────────
+function buildSidebar() {
+  const tree = document.getElementById('folderTree');
+  tree.innerHTML = folders.map(f => {
+    const label = f.split('/').filter(Boolean).join(' / ') || f;
+    const cnt = allFiles.filter(x => x.folder === f + '/').length;
+    return `<div class="tree-item" data-folder="${f}" data-label="${label}" onclick="selectFolder(this)">
+      <i class="ti ti-folder" aria-hidden="true"></i>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${label}</span>
+      <span class="tree-count">${cnt}</span>
+    </div>`;
+  }).join('');
+}
+
+function updateCounts() {
+  document.getElementById('cnt-all').textContent = allFiles.length;
+  ['Datasheet','IBIS','PCB','Tools','Other'].forEach(cat => {
+    const el = document.getElementById('cnt-' + cat);
+    if (el) el.textContent = allFiles.filter(f => f.cat === cat).length;
+  });
+  // Sidebar recent
+  const sr = document.getElementById('sidebarRecent');
+  sr.innerHTML = recentFiles.slice(0,5).map(f =>
+    `<div class="tree-item" onclick="openPreview(${JSON.stringify(f).replace(/"/g,'&quot;')})">
+      <i class="ti ${getIcon(f.ext, false)}" aria-hidden="true"></i>
+      <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${f.name}</span>
+      <span class="tree-count">${f.days === 0 ? '今天' : f.days + 'd'}</span>
+    </div>`).join('');
+}
+
+function selectFolder(el) {
+  document.querySelectorAll('.tree-item').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  filterFolder = el.dataset.folder;
+  filterCat = '';
+  document.getElementById('folderLabel').textContent = el.dataset.label || '全部文件';
+  renderList();
+}
+
+function selectCat(el) {
+  document.querySelectorAll('.tree-item').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  filterCat = el.dataset.cat;
+  filterFolder = '';
+  document.getElementById('folderLabel').textContent = el.dataset.cat + ' 分类';
+  renderList();
+}
+
+// ── Render ───────────────────────────────────────────────────────
+function getFiltered() {
+  return allFiles.filter(f => {
+    if (filterFolder && f.folder !== (filterFolder + '/') && f.folder !== filterFolder) return false;
+    if (filterCat && f.cat !== filterCat) return false;
+    if (!extFilter(f)) return false;
+    if (searchQ) {
+      // Fuzzy: all chars of query appear in order in filename
+      const q = searchQ.toLowerCase();
+      const n = f.name.toLowerCase();
+      let qi = 0;
+      for (let ni = 0; ni < n.length && qi < q.length; ni++) {
+        if (n[ni] === q[qi]) qi++;
+      }
+      if (qi < q.length) return false;
+    }
+    return true;
+  });
+}
+
+function renderList() {
+  const sort = document.getElementById('sortSelect').value;
+  let files = getFiltered();
+  if (sort === 'date') files.sort((a,b) => a.days - b.days);
+  else if (sort === 'name') files.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sort === 'size') files.sort((a,b) => b.sizeBytes - a.sizeBytes);
+
+  document.getElementById('fileCountBadge').textContent = files.length + ' 个文件';
+  const list = document.getElementById('fileList');
+
+  if (!files.length) {
+    list.innerHTML = '<div class="empty-state"><i class="ti ti-mood-empty" aria-hidden="true"></i><p>没有匹配的文件</p></div>';
+    return;
+  }
+
+  // Group by category when showing all, else just list
+  let html = '';
+  if (!filterCat && !searchQ) {
+    const cats = ['Datasheet','IBIS','PCB','Tools','Other'];
+    cats.forEach(cat => {
+      const group = files.filter(f => f.cat === cat);
+      if (!group.length) return;
+      html += `<div class="list-section-header"><i class="ti ti-tag" aria-hidden="true"></i>${cat} <span style="color:var(--border-strong);margin-left:4px">${group.length}</span></div>`;
+      html += group.map(f => fileRowHtml(f)).join('');
+    });
+  } else {
+    html = files.map(f => fileRowHtml(f)).join('');
+  }
+  list.innerHTML = html;
+}
+
+function fileRowHtml(f) {
+  const isNew = f.days <= 7;
+  const iconCls = getIcon(f.ext, false);
+  const colorCls = getColorCls(f.ext, false);
+  const safeF = encodeURIComponent(JSON.stringify(f));
+  return `<div class="file-row" onclick="openPreviewEncoded('${safeF}')">
+    <div class="file-icon ${colorCls}"><i class="ti ${iconCls}" aria-hidden="true"></i></div>
+    <div class="file-info">
+      <div class="file-name">${f.name}</div>
+      <div class="file-path">${f.path}</div>
+    </div>
+    ${isNew ? '<span class="new-badge">NEW</span>' : ''}
+    <span class="cat-badge badge-${f.cat}">${f.cat}</span>
+    <span class="file-size">${f.size || '—'}</span>
+    <span class="file-date">${f.date ? f.date.slice(0,10) : '—'}</span>
+  </div>`;
+}
+
+function openPreviewEncoded(encoded) {
+  const f = JSON.parse(decodeURIComponent(encoded));
+  openPreview(f);
+}
+
+// ── Preview Panel ────────────────────────────────────────────────
+function openPreview(f) {
+  const panel = document.getElementById('previewPanel');
+  panel.classList.add('open');
+  document.getElementById('previewTitle').textContent = f.name;
+  document.getElementById('pm-name').textContent = f.name;
+  document.getElementById('pm-type').textContent = f.ext.toUpperCase();
+  document.getElementById('pm-size').textContent = f.size || '—';
+  document.getElementById('pm-date').textContent = f.date ? f.date.slice(0,10) : '—';
+  document.getElementById('pm-cat').textContent = f.cat;
+  document.getElementById('pm-path').textContent = f.path;
+
+  // Thumb
+  const thumb = document.getElementById('previewThumb');
+  const iconEl = document.getElementById('previewThumbIcon');
+  if (EXT_IMG_TYPES.includes(f.ext)) {
+    thumb.innerHTML = `<img src="${f.url}" alt="${f.name}" onerror="this.parentNode.innerHTML='<i class=\\'ti ti-photo\\' aria-hidden=\\'true\\'></i>'">`;
+  } else {
+    thumb.innerHTML = `<i class="ti ${getIcon(f.ext, false)}" aria-hidden="true" style="font-size:44px;color:var(--muted)"></i>`;
+  }
+
+  // Buttons
+  const openBtn = document.getElementById('previewOpenBtn');
+  const downBtn = document.getElementById('previewDownBtn');
+  if (f.ext === 'pdf') {
+    openBtn.href = f.url;
+    openBtn.style.display = 'flex';
+  } else {
+    openBtn.style.display = 'none';
+  }
+  downBtn.href = f.url;
+  downBtn.download = f.name;
+}
+
+document.getElementById('closePreview').onclick = () => {
+  document.getElementById('previewPanel').classList.remove('open');
+};
+
+// ── Recent Bar ───────────────────────────────────────────────────
+function renderRecentBar() {
+  const chips = document.getElementById('recentChips');
+  chips.innerHTML = recentFiles.slice(0,6).map(f =>
+    `<div class="recent-chip" onclick="openPreview(${JSON.stringify(f).replace(/'/g,'&#39;')})">
+      <i class="ti ${getIcon(f.ext, false)}" aria-hidden="true"></i>${f.name}
+    </div>`).join('');
+}
+
+// ── Search ───────────────────────────────────────────────────────
+const searchInput = document.getElementById('searchInput');
+const clearBtn = document.getElementById('clearSearch');
+searchInput.addEventListener('input', e => {
+  searchQ = e.target.value;
+  clearBtn.style.display = searchQ ? 'block' : 'none';
+  renderList();
+});
+clearBtn.onclick = () => { searchInput.value = ''; searchQ = ''; clearBtn.style.display = 'none'; renderList(); };
+
+// ── Ext Filter ───────────────────────────────────────────────────
+document.getElementById('extFilters').addEventListener('click', e => {
+  const tag = e.target.closest('.ext-tag');
+  if (!tag) return;
+  document.querySelectorAll('.ext-tag').forEach(t => t.classList.remove('active'));
+  tag.classList.add('active');
+  filterExt = tag.dataset.ext;
+  renderList();
+});
+
+// ── Init ─────────────────────────────────────────────────────────
+loadDirectory();
 </script>
 
 </body>
