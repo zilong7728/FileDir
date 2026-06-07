@@ -1,0 +1,51 @@
+name: directory-listing
+
+# 当你向 main 分支推送代码（或者在网页端上传/修改文件）时自动触发
+on:
+  push:
+    branches:
+      - main
+
+# 授予运行此工作流所需的权限，用于将网页发布到 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 确保同时只有一个部署任务在运行
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  pages-FileDir:
+    runs-on: ubuntu-latest
+    name: Directory Listings Index
+    steps:
+      # 1. 拉取你仓库里的所有文件
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. 核心步骤：使用该插件为整个仓库生成漂亮的目录索引网页
+      - name: Generate Directory Listings
+        uses: jayanta525/github-pages-directory-listing@v4.0.0
+        with:
+          FOLDER: Files # 点号 '.' 代表对整个仓库根目录生成索引
+
+      # 3. 页面打包：将生成的静态网页打包，准备上传
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3.0.1
+        with:
+          path: 'Files'
+
+  deploy:
+    needs: pages-directory-listing
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # 4. 部署步骤：正式将打包好的内容发布到你的 GitHub Pages 网址上
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.0
