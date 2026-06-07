@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zylon | Hardware Engineer</title>
+
+<style>
+
+/* ===== Base ===== */
+body {
+    margin: 0;
+    font-family: "Segoe UI", "PingFang SC", sans-serif;
+    background: #0b0f19;
+    color: #ffffff;
+}
+
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+section {
+    padding: 80px 20px;
+    max-width: 1100px;
+    margin: auto;
+}
+
+h1,h2,h3 {
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 32px;
+    border-bottom: 2px solid #00d4ff;
+    display: inline-block;
+    padding-bottom: 8px;
+}
+
+p {
+    line-height: 1.8;
+    color: #d0d7ff;
+}
+
+/* ===== Hero ===== */
+.hero {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 56px;
+}
+
+.hero span {
+    color: #00d4ff;
+}
+
+.hero h2 {
+    font-size: 22px;
+    border: none;
+}
+
+.hero-buttons {
+    margin-top: 30px;
+}
+
+.btn {
+    display: inline-block;
+    margin: 8px;
+    padding: 12px 22px;
+    border-radius: 10px;
+    background: #00d4ff;
+    color: #000;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid #00d4ff;
+    color: #00d4ff;
+}
+
+/* ===== Tech Stack ===== */
+.tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.tech-grid span {
+    background: #12192b;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* ===== Projects ===== */
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+}
+
+.project {
+    background: #12192b;
+    padding: 25px;
+    border-radius: 16px;
+    transition: 0.3s;
+}
+
+.project:hover {
+    transform: translateY(-6px);
+}
+
+.project h3 {
+    color: #00d4ff;
+}
+
+/* ===== Sites ===== */
+.site-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.site-grid a {
+    background: #12192b;
+    padding: 25px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: white;
+    transition: 0.3s;
+}
+
+.site-grid a:hover {
+    transform: translateY(-5px);
+}
+
+/* ===== Footer ===== */
+footer {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 14px;
+    color: #999;
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<!-- Hero -->
+<section class="hero">
+
+<div>
+
+<h1>Hello, I'm <span>Zylon</span></h1>
+
+<h2>
+Hello Word!
+</h2>
+
+<p>
+没有快速傅里叶变换，就没有当今的互联网。<br>
+没有傅里叶变换，数字音乐也将不复存在。<br>
+这，就是傅里叶变换（Fourier Transform）。
+</p>
+
+<p style="margin-top:20px;">
+Hardware Engineer · PCB Designer · Tool Builder
+</p>
+
+<div class="hero-buttons">
+
+<a href="https://blog.zzilong.cn" class="btn">
+📘 Blog
+</a>
+
+<a href="https://github.com/zilong7728" class="btn">
+💻 GitHub
+</a>
+
+<a href="#projects" class="btn btn-outline">
+🚀 Projects
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- About -->
+<section>
+
+<h2>👨‍💻 About Me</h2>
+
+<p>
+你好，我是 Leon，来自四川成都，从事硬件電路研发与测试相关工作。
+</p>
+
+<p>
+我主要关注 PCB 设计、电源系统开发，以及 Python 自动化工具构建。
+我喜欢打造能够提升效率的工程工具，让复杂流程变得简单。
+</p>
+
+</section>
+
+
+<!-- Tech Stack -->
+<section>
+
+<h2>🧰 Tech Stack</h2>
+
+<div class="tech-grid">
+
+<span>PCB Design</span>
+<span>Power Design</span>
+<span>Python</span>
+<span>Qt</span>
+<span>Cadence Skill</span>
+<span>Linux</span>
+<span>Cloudflare</span>
+<span>HTML / JS</span>
+
+</div>
+
+</section>
+
+
+<!-- Projects -->
+<section id="projects">
+
+<h2>🚀 Projects</h2>
+
+<div class="project-grid">
+
+<div class="project">
+<h3>BOM Toolbox</h3>
+<p>
+BOM检测、替代与数据库管理工具，支持自动匹配与替代逻辑。
+</p>
+</div>
+
+<div class="project">
+<h3>ZSkill Toolkit</h3>
+<p>
+Cadence Skill 自动化工具集合，提升 PCB 设计效率。
+</p>
+</div>
+
+<div class="project">
+<h3>IPTV System</h3>
+<p>
+频道管理、测试与自动分类系统，支持批量检测流可用性。
+</p>
+</div>
+
+</div>
+
+</section>
+
+
+<!-- Sites -->
+<section>
+
+<h2>🌐 My Sites</h2>
+
+<div class="site-grid">
+
+<a href="https://blog.zzilong.cn">
+📘 Blog<br>
+技术文章与记录
+</a>
+
+<a href="https://nav.zzilong.cn">
+🧭 Navigation<br>
+常用工具导航
+</a>
+
+<a href="https://status.zzilong.cn">
+📡 Status<br>
+站点运行状态
+</a>
+
+
+</div>
+
+</section>
+
+
+<!-- Footer -->
+<footer>
+
+<p>
+硬件研发与设计，是我走向创新的第一步。
+</p>
+
+<p>
+© 2026 Zylon | Powered by Tencent Cloud
+</p>
+
+</footer>
+
+
+<script>
+
+/* ===== Simple Star Background ===== */
+
+const canvas = document.getElementById('starCanvas');
+const ctx = canvas.getContext('2d');
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let stars = [];
+
+for (let i = 0; i < 120; i++) {
+    stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5
+    });
+}
+
+function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "white";
+
+    stars.forEach(star => {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.r, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    requestAnimationFrame(drawStars);
+}
+
+drawStars();
+
+</script>
+
+</body>
+</html>
