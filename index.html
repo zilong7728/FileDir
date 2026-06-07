@@ -379,7 +379,8 @@ function expandToFolder(folderPath) {
 }
 
 function updateBreadcrumb() {
-  const container = document.getElementById('breadcrumbInner');
+  // 核心修复点：将 breadcrumbInner 修改为了 breadcrumb
+  const container = document.getElementById('breadcrumb');
   if (fFolder === null) {
     container.innerHTML = '<span class="bc-cur" onclick="selectAllFiles()">全部文件 (全局)</span>';
     return;
