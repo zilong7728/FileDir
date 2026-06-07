@@ -35,28 +35,24 @@ def get_file_info(file_path, base_dir):
     ext = name.split('.')[-1].lower() if '.' in name else ''
     
     # 提取文件夹路径（去掉 Files/ 前缀）
-    folder = os.path.dirname(file_path).replace("\\", "/")
-    if folder == "":
+    folder_path = os.path.dirname(file_path).replace("\\", "/")
+    if folder_path == "":
         folder = "/"
     else:
-        folder = "/" + folder
+        folder = "/" + folder_path
     
     # 构建完整URL（部署后的访问地址）
-    # 注意：实际URL需要根据你的GitHub Pages地址调整
     url = f"https://zilong7728.github.io/FileDir/{rel_path}"
     
     return {
         "name": name,
         "ext": ext,
-        "cat": "Other",  # 分类由前端根据扩展名决定，这里留空或前端覆盖
         "path": rel_path,
         "folder": folder,
         "size": size_str,
         "sizeBytes": size_bytes,
         "date": date_str,
-        "days": 0,  # 前端会重新计算
-        "url": url,
-        "isDir": False
+        "url": url
     }
 
 def scan_files(base_dir):
@@ -70,7 +66,6 @@ def scan_files(base_dir):
     
     for file_path in base_path.rglob("*"):
         if file_path.is_file():
-            # 获取相对于 base_dir 的路径
             rel_path = file_path.relative_to(base_path)
             files.append(get_file_info(str(rel_path), base_dir))
     
@@ -81,16 +76,15 @@ def main():
     all_files = scan_files(BASE_DIR)
     print(f"找到 {len(all_files)} 个文件")
     
-    # 按修改时间排序，最新的在前（可选）
+    # 按修改时间排序
     all_files.sort(key=lambda x: x["date"], reverse=True)
     
-    # 输出到 JSON
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         json.dump(all_files, f, ensure_ascii=False, indent=2)
     
     print(f"已生成 {OUTPUT_JSON}")
     
-    # 同时生成一个简单的统计信息
+    # 统计信息
     print("\n文件类型统计:")
     ext_count = {}
     for f in all_files:

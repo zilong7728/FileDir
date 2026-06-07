@@ -383,26 +383,102 @@ async function crawl(base, relPath, depth){
   }
 }
 
-async function init(){
-  allFiles=[]; folders=[];
-  document.getElementById('fileList').innerHTML='<div class="empty"><i class="ti ti-loader spin" aria-hidden="true"></i><p>正在扫描目录…</p></div>';
-  await crawl(BASE, '', 0);
-  const recent = [...allFiles].sort((a,b)=>a.days-b.days);
-  buildSidebar();
-  updateCounts();
-  render();
-  renderRecentBar(recent.slice(0,6));
+// async function init(){
+//   allFiles=[]; folders=[];
+//   document.getElementById('fileList').innerHTML='<div class="empty"><i class="ti ti-loader spin" aria-hidden="true"></i><p>正在扫描目录…</p></div>';
+//   await crawl(BASE, '', 0);
+//   const recent = [...allFiles].sort((a,b)=>a.days-b.days);
+//   buildSidebar();
+//   updateCounts();
+//   render();
+//   renderRecentBar(recent.slice(0,6));
+// }
+
+async function init() {
+    allFiles = [];
+    folders = [];
+    
+    document.getElementById('fileList').innerHTML = '<div class="empty"><i class="ti ti-loader spin" aria-hidden="true"></i><p>正在加载目录…</p></div>';
+    
+    try {
+        const response = await fetch('index.json?t=' + Date.now());  // 加时间戳避免缓存
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const rawFiles = await response.json();
+        
+        // 转换为前端需要的格式
+        allFiles = rawFiles.map(f => ({
+            ...f,
+            days: daysSince(f.date),
+            cat: getCat(f.ext)
+        }));
+        
+        // 构建文件夹列表（从文件路径中提取）
+        const folderSet = new Set();
+        allFiles.forEach(f => {
+            if (f.folder && f.folder !== '/') {
+                folderSet.add(f.folder);
+            }
+        });
+        folders = Array.from(folderSet).sort().map(rel => ({
+            rel: rel,
+            label: rel.split('/').pop() || rel
+        }));
+        
+        buildSidebar();
+        updateCounts();
+        render();
+        
+        // 更新最近文件栏
+        const recent = [...allFiles].sort((a,b) => a.days - b.days);
+        renderRecentBar(recent.slice(0,6));
+        
+        // 清空加载提示
+        const fileListEl = document.getElementById('fileList');
+        if (fileListEl.innerHTML.includes('正在加载')) {
+            render(); // 重新渲染
+        }
+        
+    } catch (err) {
+        console.error('加载失败:', err);
+        document.getElementById('fileList').innerHTML = `<div class="empty"><i class="ti ti-error" aria-hidden="true"></i><p>加载失败: ${err.message}<br>请刷新页面重试</p></div>`;
+    }
 }
 
 // ── Sidebar ───────────────────────────────────────────────────────
-function buildSidebar(){
-  document.getElementById('folderTree').innerHTML = folders.map(f=>`
-    <div class="tree-item" data-folder="${f.rel}" onclick="selectFolder(this)">
-      <i class="ti ti-folder" aria-hidden="true"></i>
-      <span class="tree-nm">${f.label}</span>
-      <span class="tree-cnt">${allFiles.filter(x=>x.folder===f.rel).length}</span>
-    </div>`).join('');
+// function buildSidebar(){
+//   document.getElementById('folderTree').innerHTML = folders.map(f=>`
+//     <div class="tree-item" data-folder="${f.rel}" onclick="selectFolder(this)">
+//       <i class="ti ti-folder" aria-hidden="true"></i>
+//       <span class="tree-nm">${f.label}</span>
+//       <span class="tree-cnt">${allFiles.filter(x=>x.folder===f.rel).length}</span>
+//     </div>`).join('');
+// }
+
+function buildSidebar() {
+    const folderTree = document.getElementById('folderTree');
+    if (folders.length === 0) {
+        folderTree.innerHTML = '<div class="tree-item" style="color:var(--muted)">暂无子文件夹</div>';
+        return;
+    }
+    folderTree.innerHTML = folders.map(f => `
+        <div class="tree-item" data-folder="${f.rel}" onclick="selectFolder(this)">
+            <i class="ti ti-folder" aria-hidden="true"></i>
+            <span class="tree-nm">${escapeHtml(f.label)}</span>
+            <span class="tree-cnt">${allFiles.filter(x => x.folder === f.rel).length}</span>
+        </div>
+    `).join('');
 }
+
+// 添加一个辅助函数防止XSS
+function escapeHtml(str) {
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
 function updateCounts(){
   document.getElementById('cnt-all').textContent = allFiles.length;
   CATS.forEach(c=>{
