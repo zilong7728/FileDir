@@ -13,10 +13,12 @@ jobs:
       - name: Generate Directory Listings
         uses: jayanta525/github-pages-directory-listing@v4.0.0
         with:
-          FOLDER: Files   # ← 改成你实际的文件夹名
+          FOLDER: Files
 
       - name: Inject custom portal as root index
-        run: cp .github/_portal.html Files/index.html
+        run: |
+          cp .github/_portal.html Files/index.html
+          ls -la Files/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3.0.1
