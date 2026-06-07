@@ -316,47 +316,68 @@ function parseListingHTML(html, baseHref){
 
 // ── Crawler ───────────────────────────────────────────────────────
 // Base URL: e.g. https://zilong7728.github.io/FileDir
+// BASE = 当前页面所在目录，末尾带 /
+// 例：https://zilong7728.github.io/FileDir/ → 保持不变
+// 例：https://zilong7728.github.io/FileDir/index.html → 截掉 index.html
 const BASE = (()=>{
   let u = window.location.href;
-  // remove trailing slash and any filename
-  u = u.replace(/\/[^\/]*$/, '');
-  if(!u.endsWith('/')) u += '/';
+  if(!u.endsWith('/')) u = u.substring(0, u.lastIndexOf('/') + 1);
   return u;
 })();
 
-async function crawl(relPath, depth){
-  if(depth>4) return;
-  let html;
+// 把含中文/特殊字符的相对路径安全地 fetch
+// href 可能已经是 URL-encoded（Action 生成的 <a href> 有时会编码）也可能是原始中文
+async function safeFetch(base, relHref){
+  // 先试原始拼接
   try{
-    const r = await fetch(BASE + relPath);
-    if(!r.ok) return;
-    html = await r.text();
-  }catch{ return; }
+    const r = await fetch(base + relHref);
+    if(r.ok) return r;
+  }catch{}
+  // 再试 encode
+  try{
+    const encoded = relHref.split('/').map(seg=>encodeURIComponent(decodeURIComponent(seg))).join('/');
+    const r = await fetch(base + encoded);
+    if(r.ok) return r;
+  }catch{}
+  return null;
+}
+
+async function crawl(base, relPath, depth){
+  if(depth>5) return;
+  const r = await safeFetch(base, relPath);
+  if(!r) return;
+  const html = await r.text();
 
   const items = parseListingHTML(html, relPath);
   for(const item of items){
     if(item.isDir){
-      const dirRel = relPath + item.href;
-      const dirKey = (relPath + item.href.replace(/\/$/,'')).replace(/\/\//g,'/');
+      const dirRel = relPath + item.href;          // e.g. "信号与电源完整性/"
+      const dirKey = dirRel.replace(/\/$/,'');
       if(!folders.find(f=>f.rel===dirKey)){
         const label = decodeURIComponent(item.href.replace(/\/$/,''));
         folders.push({rel:dirKey, label});
       }
-      await crawl(dirRel, depth+1);
+      await crawl(base, dirRel, depth+1);
     } else {
-      const name = decodeURIComponent(item.href.split('/').pop());
+      const rawHref = item.href;                   // e.g. "foo.pdf" or "%E6%96%87%E4%BB%B6.pdf"
+      const name = decodeURIComponent(rawHref.split('/').pop());
       const ext  = getExt(name);
       const cat  = getCat(ext);
       const folderRel = relPath.replace(/\/$/,'');
+      // 构造可访问的 URL：把每段分别 encode
+      const encodedHref = rawHref.split('/').map(seg=>{
+        try{ return encodeURIComponent(decodeURIComponent(seg)); }
+        catch{ return encodeURIComponent(seg); }
+      }).join('/');
       allFiles.push({
         name, ext, cat,
-        path: relPath + item.href,
+        path: relPath + rawHref,
         folder: folderRel,
         size: item.size,
         sizeBytes: parseSize(item.size),
         date: item.date,
         days: daysSince(item.date),
-        url: BASE + relPath + encodeURIComponent(item.href).replace(/%2F/g,'/'),
+        url: base + relPath + encodedHref,
       });
     }
   }
@@ -365,8 +386,7 @@ async function crawl(relPath, depth){
 async function init(){
   allFiles=[]; folders=[];
   document.getElementById('fileList').innerHTML='<div class="empty"><i class="ti ti-loader spin" aria-hidden="true"></i><p>正在扫描目录…</p></div>';
-  // crawl starts from '' (root of Pages site)
-  await crawl('',0);
+  await crawl(BASE, '', 0);
   const recent = [...allFiles].sort((a,b)=>a.days-b.days);
   buildSidebar();
   updateCounts();
