@@ -52,8 +52,10 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 .folder-children{width:100%}
 .content{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .content-hdr{padding:10px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);background:var(--bg);flex-shrink:0}
-.breadcrumb{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);flex:1}
-.bc-cur{color:var(--text);font-weight:500}
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);flex:1;flex-wrap:wrap}
+.breadcrumb i{cursor:pointer}
+.breadcrumb .bc-cur{cursor:pointer;color:var(--text);font-weight:500}
+.breadcrumb .bc-cur:hover{text-decoration:underline}
 .cnt-badge{font-size:11px;color:var(--muted);background:var(--border);padding:2px 8px;border-radius:10px}
 .sort-sel{border:1px solid var(--border-strong);border-radius:var(--r);background:var(--surface);font-family:var(--font);font-size:11px;color:var(--text);padding:4px 8px;cursor:pointer;outline:none}
 .list-wrap{flex:1;overflow-y:auto}
@@ -177,9 +179,9 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 
   <div class="content">
     <div class="content-hdr">
-      <div class="breadcrumb">
-        <i class="ti ti-home" style="font-size:13px"></i>
-        <span>/</span><span class="bc-cur" id="folderLabel">全部文件</span>
+      <div class="breadcrumb" id="breadcrumb">
+        <i class="ti ti-home" style="font-size:13px; cursor:pointer;" onclick="selectFolderByPath('')"></i>
+        <span id="breadcrumbInner"></span>
       </div>
       <span class="cnt-badge" id="cntBadge">…</span>
       <select class="sort-sel" id="sortSel" onchange="render()">
@@ -334,6 +336,45 @@ function toggleFolder(folderPath) {
   arrowIcon.classList.toggle('ti-chevron-down', !isVisible);
 }
 
+// 展开侧边栏路径（自动展开当前文件夹的所有父级）
+function expandToFolder(folderPath) {
+  if (folderPath === "") return;
+  const parts = folderPath.split('/');
+  let currentPath = '';
+  for (let i = 0; i < parts.length; i++) {
+    if (i > 0) currentPath += '/';
+    currentPath += parts[i];
+    const safeId = currentPath.replace(/\//g, '-');
+    const childrenDiv = document.getElementById(`children-${safeId}`);
+    const arrowIcon = document.querySelector(`#arrow-${safeId}`);
+    if (childrenDiv && childrenDiv.style.display === 'none') {
+      childrenDiv.style.display = 'block';
+      if (arrowIcon) {
+        arrowIcon.classList.remove('ti-chevron-right');
+        arrowIcon.classList.add('ti-chevron-down');
+      }
+    }
+  }
+}
+
+// 更新面包屑（支持点击任意层级返回）
+function updateBreadcrumb() {
+  const container = document.getElementById('breadcrumbInner');
+  if (fFolder === "") {
+    container.innerHTML = '<span class="bc-cur" onclick="selectFolderByPath(\'\')">全部文件</span>';
+    return;
+  }
+  const parts = fFolder.split('/');
+  let html = '';
+  let accumulated = '';
+  for (let i = 0; i < parts.length; i++) {
+    if (i > 0) html += '<span class="sep"> / </span>';
+    accumulated += (i === 0 ? parts[i] : '/' + parts[i]);
+    html += `<span class="bc-cur" onclick="selectFolderByPath('${accumulated}')">${escapeHtml(parts[i])}</span>`;
+  }
+  container.innerHTML = html;
+}
+
 // 获取当前文件夹下的子文件夹（仅直接子层）
 function getSubFolders(currentFolder) {
   const allFolderPaths = [...new Set(allFiles.map(f => f.folder).filter(p => p !== ""))];
@@ -450,25 +491,28 @@ function rowHtml(item) {
   </div>`;
 }
 
-// 选中文件夹（通过侧边栏或右侧列表）
+// 选中文件夹（通过侧边栏或右侧列表或面包屑）
 function selectFolderByPath(folderPath) {
   fFolder = folderPath;
   fCat = '';
   searchQ = '';
   document.getElementById('searchInput').value = '';
   document.getElementById('clearSearch').style.display = 'none';
-  // 更新面包屑显示
-  const displayName = folderPath === "" ? "全部文件" : folderPath.split('/').pop();
-  document.getElementById('folderLabel').textContent = displayName;
-  // 高亮侧边栏对应项
+  
+  // 更新面包屑
+  updateBreadcrumb();
+  
+  // 高亮侧边栏对应项，并展开父级路径
   document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
   let targetEl = document.querySelector(`.tree-item[data-folder="${folderPath}"]`);
   if (targetEl) {
     targetEl.classList.add('active');
+    expandToFolder(folderPath);   // 自动展开当前文件夹的父级路径
   } else {
     const rootItem = document.querySelector('.tree-item[data-folder=""]');
     if (rootItem) rootItem.classList.add('active');
   }
+  
   render();
 }
 
@@ -477,7 +521,7 @@ function selectCat(el) {
   el.classList.add('active');
   fCat = el.dataset.cat;
   fFolder = "";
-  document.getElementById('folderLabel').textContent = fCat + ' 分类';
+  updateBreadcrumb();
   render();
 }
 
@@ -561,6 +605,7 @@ async function init() {
     document.getElementById('clearSearch').style.display = 'none';
     document.querySelectorAll('.ext-tag').forEach(tag => tag.classList.remove('active'));
     document.querySelector('.ext-tag[data-ext=""]').classList.add('active');
+    updateBreadcrumb();
     render();
     const recent = [...allFiles].sort((a,b) => a.days - b.days);
     renderRecentBar(recent.slice(0,6));
