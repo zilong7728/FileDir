@@ -32,7 +32,7 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 #searchInput{border:none;background:transparent;outline:none;font-family:var(--font);font-size:12px;color:var(--text);width:100%}
 #searchInput::placeholder{color:var(--muted)}
 .ext-filters{display:flex;gap:5px;margin-left:auto}
-.ext-tag{padding:3px 9px;border-radius:4px;border:1px solid var(--border-strong);font-size:11px;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .12s;user-select:none}
+.ext-tag{padding:3px 9px;border-radius:4px;border:1px solid var(--border-strong);font-size:11px;cursor:pointer;background:var(--surface);color:var(--muted);transition:all .12s;user-select:none; text-transform: uppercase;}
 .ext-tag.active{background:var(--accent-light);border-color:#378ADD;color:var(--accent);font-weight:500}
 .icon-btn{width:32px;height:32px;border-radius:var(--r);border:1px solid var(--border-strong);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:background .12s}
 .icon-btn:hover{background:var(--bg);color:var(--text)}
@@ -45,7 +45,8 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 .tree-item.active{background:var(--accent-light);color:var(--accent);font-weight:500;border-left-color:var(--accent)}
 .tree-item i{font-size:16px;color:var(--muted);flex-shrink:0}
 .tree-item.active i{color:var(--accent)}
-.tree-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tree-nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; text-transform: uppercase;}
+.tree-item[data-folder] .tree-nm { text-transform: none; } /* 文件夹名字不转大写 */
 .tree-cnt{margin-left:auto;font-size:10px;color:var(--muted);background:var(--bg);padding:1px 6px;border-radius:10px;flex-shrink:0}
 .tree-item.active .tree-cnt{background:rgba(24,95,165,.12);color:var(--accent)}
 .folder-arrow{cursor:pointer;display:inline-flex;width:20px;margin-left:-4px;user-select:none}
@@ -70,17 +71,13 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 .ic-ibs{background:#E1F5EE;color:#0F6E56}
 .ic-zip{background:#FAEEDA;color:#854F0B}
 .ic-img{background:#EEEDFE;color:#534AB7}
+.ic-doc{background:#E6F1FB;color:#185FA5}
 .ic-dir{background:var(--accent-light);color:var(--accent)}
 .ic-oth{background:var(--bg);color:var(--muted)}
 .f-info{flex:1;min-width:0}
 .f-name{font-size:12px;font-weight:500;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .f-path{font-size:11px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cat-badge{padding:2px 7px;border-radius:3px;font-size:10px;font-weight:500;flex-shrink:0}
-.b-DS{background:#E6F1FB;color:#185FA5}
-.b-IB{background:#E1F5EE;color:#0F6E56}
-.b-PC{background:#FAEEDA;color:#854F0B}
-.b-TO{background:#EEEDFE;color:#534AB7}
-.b-OT{background:#F1EFE8;color:#5F5E5A}
+.cat-badge{padding:2px 7px;border-radius:3px;font-size:10px;font-weight:600;flex-shrink:0; background:var(--border); color:var(--text); text-transform: uppercase;}
 .f-size{font-size:11px;color:var(--muted);width:60px;text-align:right;flex-shrink:0}
 .f-date{font-size:11px;color:var(--muted);width:86px;text-align:right;flex-shrink:0}
 .new-b{font-size:9px;background:#E1F5EE;color:#0F6E56;padding:1px 5px;border-radius:3px;flex-shrink:0;font-weight:600;letter-spacing:.05em}
@@ -133,12 +130,7 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
     <i class="ti ti-x" id="clearSearch" style="cursor:pointer;display:none;color:var(--muted);font-size:14px"></i>
   </div>
   <div class="ext-filters" id="extFilters">
-    <div class="ext-tag active" data-ext="">全部</div>
-    <div class="ext-tag" data-ext="pdf">PDF</div>
-    <div class="ext-tag" data-ext="ibs">IBS</div>
-    <div class="ext-tag" data-ext="zip">ZIP</div>
-    <div class="ext-tag" data-ext="img">图片</div>
-  </div>
+    </div>
   <div class="icon-btn" title="刷新目录" onclick="init()"><i class="ti ti-refresh"></i></div>
 </header>
 
@@ -153,24 +145,10 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
       </div>
       <div id="folderTree"></div>
     </div>
-    <div class="sb-section">
-      <div class="sb-label">分类标签</div>
-      <div class="tree-item" data-cat="Datasheet" onclick="selectCat(this)">
-        <i class="ti ti-file-description"></i><span class="tree-nm">Datasheet</span><span class="tree-cnt" id="c-DS">0</span>
+    
+    <div class="sb-section" id="catSection">
       </div>
-      <div class="tree-item" data-cat="IBIS" onclick="selectCat(this)">
-        <i class="ti ti-wave-sine"></i><span class="tree-nm">IBIS</span><span class="tree-cnt" id="c-IB">0</span>
-      </div>
-      <div class="tree-item" data-cat="PCB" onclick="selectCat(this)">
-        <i class="ti ti-circuit-board"></i><span class="tree-nm">PCB</span><span class="tree-cnt" id="c-PC">0</span>
-      </div>
-      <div class="tree-item" data-cat="Tools" onclick="selectCat(this)">
-        <i class="ti ti-tool"></i><span class="tree-nm">Tools</span><span class="tree-cnt" id="c-TO">0</span>
-      </div>
-      <div class="tree-item" data-cat="Other" onclick="selectCat(this)">
-        <i class="ti ti-tag"></i><span class="tree-nm">Other</span><span class="tree-cnt" id="c-OT">0</span>
-      </div>
-    </div>
+    
     <div class="sb-section">
       <div class="sb-label">最近更新</div>
       <div id="sbRecent"></div>
@@ -209,7 +187,6 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
         <div class="meta-row"><span>类型</span><span id="pm-type">—</span></div>
         <div class="meta-row"><span>大小</span><span id="pm-size">—</span></div>
         <div class="meta-row"><span>修改时间</span><span id="pm-date">—</span></div>
-        <div class="meta-row"><span>分类</span><span id="pm-cat">—</span></div>
         <div class="meta-row"><span>路径</span><span id="pm-path" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--muted)">—</span></div>
       </div>
       <div class="pv-actions">
@@ -227,41 +204,32 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 
 <script>
 // ── 配置区 ────────────────────────────────────────────────────────
-const EXT_CAT = {
-  pdf:'Datasheet',
-  ibs:'IBIS', ibis:'IBIS', s1p:'IBIS', s2p:'IBIS', s4p:'IBIS',
-  sch:'PCB', brd:'PCB', kicad_pcb:'PCB', gbr:'PCB', drl:'PCB', kicad_sch:'PCB',
-  zip:'Tools', rar:'Tools', '7z':'Tools', exe:'Tools', py:'Tools', sh:'Tools',
-  png:'Other', jpg:'Other', jpeg:'Other', gif:'Other', svg:'Other', webp:'Other',
-};
-const CATS = ['Datasheet','IBIS','PCB','Tools','Other'];
-const CAT_ID = {Datasheet:'DS',IBIS:'IB',PCB:'PC',Tools:'TO',Other:'OT'};
 const IMG_EXTS = new Set(['png','jpg','jpeg','gif','webp','svg']);
+// 扩充了常见图标和颜色映射，未知后缀会自动走默认 fallback
 const EXT_ICON = {
   pdf:'ti-file-type-pdf',
-  ibs:'ti-wave-sine',ibis:'ti-wave-sine',s1p:'ti-wave-sine',s2p:'ti-wave-sine',s4p:'ti-wave-sine',
-  zip:'ti-file-zip',rar:'ti-file-zip','7z':'ti-file-zip',
-  png:'ti-photo',jpg:'ti-photo',jpeg:'ti-photo',gif:'ti-photo',svg:'ti-photo',webp:'ti-photo',
-  py:'ti-brand-python',js:'ti-brand-javascript',sh:'ti-terminal',
-  xlsx:'ti-file-spreadsheet',csv:'ti-file-spreadsheet',
-  docx:'ti-file-word',doc:'ti-file-word',
-  txt:'ti-file-text',md:'ti-markdown',
+  ibs:'ti-wave-sine', ibis:'ti-wave-sine', s1p:'ti-wave-sine', s2p:'ti-wave-sine', s4p:'ti-wave-sine',
+  zip:'ti-file-zip', rar:'ti-file-zip', '7z':'ti-file-zip',
+  png:'ti-photo', jpg:'ti-photo', jpeg:'ti-photo', gif:'ti-photo', svg:'ti-photo', webp:'ti-photo',
+  py:'ti-brand-python', js:'ti-brand-javascript', sh:'ti-terminal', exe:'ti-device-desktop',
+  xlsx:'ti-file-spreadsheet', csv:'ti-file-spreadsheet',
+  docx:'ti-file-word', doc:'ti-file-word',
+  txt:'ti-file-text', md:'ti-markdown', db:'ti-database'
 };
 const EXT_CLR = {
-  pdf:'ic-pdf',ibs:'ic-ibs',ibis:'ic-ibs',s1p:'ic-ibs',s2p:'ic-ibs',s4p:'ic-ibs',
-  zip:'ic-zip',rar:'ic-zip','7z':'ic-zip',
-  png:'ic-img',jpg:'ic-img',jpeg:'ic-img',gif:'ic-img',svg:'ic-img',webp:'ic-img',
+  pdf:'ic-pdf', ibs:'ic-ibs', ibis:'ic-ibs', s1p:'ic-ibs', s2p:'ic-ibs', s4p:'ic-ibs',
+  zip:'ic-zip', rar:'ic-zip', '7z':'ic-zip',
+  png:'ic-img', jpg:'ic-img', jpeg:'ic-img', gif:'ic-img', svg:'ic-img', webp:'ic-img',
+  docx:'ic-doc', doc:'ic-doc', txt:'ic-doc'
 };
 
 let allFiles = [];
-let fFolder = '';     // 当前选中的文件夹路径（空字符串表示根）
-let fExt = '';
-let fCat = '';
+let fFolder = '';     
+let sideExt = ''; // 侧边栏点选的后缀过滤
+let topExt = '';  // 顶部快捷键点选的后缀过滤
 let searchQ = '';
 
 // 辅助函数
-const getExt = n => { const m = n.match(/\.([^.\/]+)$/); return m ? m[1].toLowerCase() : ''; };
-const getCat = e => EXT_CAT[e] || 'Other';
 const getIcon = (e, d) => d ? 'ti-folder' : (EXT_ICON[e] || 'ti-file');
 const getClr = (e, d) => d ? 'ic-dir' : (EXT_CLR[e] || 'ic-oth');
 const daysSince = d => { if (!d) return 9999; try { return Math.floor((Date.now() - new Date(d)) / 86400000); } catch { return 9999; } };
@@ -278,10 +246,7 @@ function buildTree(folderPaths) {
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
       if (!current[part]) {
-        current[part] = {
-          fullPath: parts.slice(0, i + 1).join('/'),
-          children: {}
-        };
+        current[part] = { fullPath: parts.slice(0, i + 1).join('/'), children: {} };
       }
       current = current[part].children;
     }
@@ -321,8 +286,36 @@ function buildSidebar() {
     container.innerHTML = '<div class="tree-item">暂无子文件夹</div>';
     return;
   }
-  const tree = buildTree(folderPaths);
-  container.innerHTML = renderTree(tree);
+  container.innerHTML = renderTree(buildTree(folderPaths));
+}
+
+// 动态生成后缀分类侧边栏
+function buildCatSidebar() {
+  const exts = [...new Set(allFiles.map(f => f.ext).filter(e => e !== ''))].sort();
+  let html = '<div class="sb-label">按后缀分类</div>';
+  exts.forEach(ext => {
+    const cnt = allFiles.filter(f => f.ext === ext).length;
+    html += `
+      <div class="tree-item" data-ext-side="${ext}" onclick="selectSideExt(this)">
+        <i class="ti ${getIcon(ext, false)}"></i>
+        <span class="tree-nm">${ext}</span>
+        <span class="tree-cnt">${cnt}</span>
+      </div>`;
+  });
+  document.getElementById('catSection').innerHTML = html;
+}
+
+// 动态生成顶部过滤快捷栏（取数量最多的前5个后缀）
+function buildTopExtFilters() {
+  const extCounts = {};
+  allFiles.forEach(f => { if(f.ext) extCounts[f.ext] = (extCounts[f.ext] || 0) + 1; });
+  const sortedExts = Object.entries(extCounts).sort((a,b) => b[1] - a[1]).slice(0, 5).map(x => x[0]);
+  
+  let html = `<div class="ext-tag active" data-ext-top="">全部</div>`;
+  sortedExts.forEach(ext => {
+    html += `<div class="ext-tag" data-ext-top="${ext}">${ext}</div>`;
+  });
+  document.getElementById('extFilters').innerHTML = html;
 }
 
 function toggleFolder(folderPath) {
@@ -336,7 +329,6 @@ function toggleFolder(folderPath) {
   arrowIcon.classList.toggle('ti-chevron-down', !isVisible);
 }
 
-// 展开侧边栏路径（自动展开当前文件夹的所有父级）
 function expandToFolder(folderPath) {
   if (folderPath === "") return;
   const parts = folderPath.split('/');
@@ -357,7 +349,6 @@ function expandToFolder(folderPath) {
   }
 }
 
-// 更新面包屑（支持点击任意层级返回）
 function updateBreadcrumb() {
   const container = document.getElementById('breadcrumbInner');
   if (fFolder === "") {
@@ -365,8 +356,7 @@ function updateBreadcrumb() {
     return;
   }
   const parts = fFolder.split('/');
-  let html = '';
-  let accumulated = '';
+  let html = ''; let accumulated = '';
   for (let i = 0; i < parts.length; i++) {
     if (i > 0) html += '<span class="sep"> / </span>';
     accumulated += (i === 0 ? parts[i] : '/' + parts[i]);
@@ -375,28 +365,24 @@ function updateBreadcrumb() {
   container.innerHTML = html;
 }
 
-// 获取当前文件夹下的子文件夹（仅直接子层）
 function getSubFolders(currentFolder) {
   const allFolderPaths = [...new Set(allFiles.map(f => f.folder).filter(p => p !== ""))];
   if (currentFolder === "") {
-    // 根目录：不含斜杠的文件夹
     return allFolderPaths.filter(p => !p.includes('/'));
   } else {
-    // 子文件夹：父路径正好是 currentFolder
     return allFolderPaths.filter(p => p.substring(0, p.lastIndexOf('/')) === currentFolder && p !== currentFolder);
   }
 }
 
-// 获取当前视图要显示的项目（子文件夹 + 文件）
 function getCurrentItems() {
-  // 文件筛选
   let files = allFiles.filter(f => {
+    // 目录过滤
     if (fFolder !== "" && f.folder !== fFolder) return false;
-    if (fCat && f.cat !== fCat) return false;
-    if (fExt) {
-      if (fExt === 'img') return IMG_EXTS.has(f.ext);
-      if (f.ext !== fExt) return false;
-    }
+    // 侧边栏后缀过滤 (全局跨文件夹)
+    if (sideExt && f.ext !== sideExt) return false;
+    // 顶部快捷后缀过滤 (当前文件夹下)
+    if (topExt && f.ext !== topExt) return false;
+    // 搜索过滤
     if (searchQ) {
       const q = searchQ.toLowerCase(), n = f.name.toLowerCase();
       let idx = 0;
@@ -406,27 +392,18 @@ function getCurrentItems() {
     return true;
   });
 
-  // 子文件夹（仅在无全局筛选时显示）
   let subFolders = [];
-  if (!searchQ && !fCat && !fExt) {
+  if (!searchQ && !sideExt && !topExt) {
     subFolders = getSubFolders(fFolder).map(sub => ({
-      isDir: true,
-      name: sub.split('/').pop(),
-      fullPath: sub,
-      size: '',
-      date: '',
-      ext: '',
-      cat: 'Folder'
+      isDir: true, name: sub.split('/').pop(), fullPath: sub, size: '', date: '', ext: '',
     }));
   }
   return [...subFolders, ...files];
 }
 
-// 右侧渲染
 function render() {
   const sort = document.getElementById('sortSel').value;
   let items = getCurrentItems();
-  // 排序：文件夹在前，然后按所选规则
   items.sort((a, b) => {
     if (a.isDir && !b.isDir) return -1;
     if (!a.isDir && b.isDir) return 1;
@@ -442,17 +419,18 @@ function render() {
     return;
   }
   let html = '';
-  if (!fCat && !searchQ && !fExt && fFolder === "") {
-    // 根目录：先显示文件夹，再按分类分组显示文件
+  // 根目录下，如果没有进行任何过滤，自动按后缀折叠显示
+  if (!sideExt && !searchQ && !topExt && fFolder === "") {
     const folderItems = items.filter(i => i.isDir);
     const fileItems = items.filter(i => !i.isDir);
     if (folderItems.length) {
       html = `<div class="sec-hdr"><i class="ti ti-folder"></i>文件夹</div>${folderItems.map(rowHtml).join('')}`;
     }
-    for (const cat of CATS) {
-      const g = fileItems.filter(f => f.cat === cat);
+    const uniqueExts = [...new Set(fileItems.map(f => f.ext).filter(e => e !== ''))].sort();
+    for (const ext of uniqueExts) {
+      const g = fileItems.filter(f => f.ext === ext);
       if (!g.length) continue;
-      html += `<div class="sec-hdr"><i class="ti ti-tag"></i>${cat}<span style="color:var(--border-strong);margin-left:4px">${g.length}</span></div>`;
+      html += `<div class="sec-hdr"><i class="ti ${getIcon(ext, false)}"></i>${ext}<span style="color:var(--border-strong);margin-left:4px">${g.length}</span></div>`;
       html += g.map(rowHtml).join('');
     }
   } else {
@@ -463,21 +441,20 @@ function render() {
 
 function rowHtml(item) {
   if (item.isDir) {
-    // 渲染文件夹行
     return `<div class="file-row" onclick="selectFolderByPath('${item.fullPath}')">
       <div class="f-icon ic-dir"><i class="ti ti-folder"></i></div>
       <div class="f-info">
         <div class="f-name">${escapeHtml(item.name)}</div>
         <div class="f-path">${escapeHtml(item.fullPath)}</div>
       </div>
-      <span class="cat-badge">文件夹</span>
+      <span class="cat-badge" style="background:transparent;border:1px solid var(--border)">文件夹</span>
       <span class="f-size"></span>
       <span class="f-date"></span>
     </div>`;
   }
-  // 文件行
   const isNew = item.days <= 7;
   const enc = encodeURIComponent(JSON.stringify(item));
+  const displayExt = item.ext ? item.ext : '未知';
   return `<div class="file-row" onclick="showPreviewEnc('${enc}')">
     <div class="f-icon ${getClr(item.ext,false)}"><i class="ti ${getIcon(item.ext,false)}"></i></div>
     <div class="f-info">
@@ -485,47 +462,44 @@ function rowHtml(item) {
       <div class="f-path">${escapeHtml(item.path)}</div>
     </div>
     ${isNew ? '<span class="new-b">NEW</span>' : ''}
-    <span class="cat-badge b-${CAT_ID[item.cat]}">${item.cat}</span>
+    <span class="cat-badge">${displayExt}</span>
     <span class="f-size">${item.size || '—'}</span>
     <span class="f-date">${item.date ? item.date.slice(0,10) : '—'}</span>
   </div>`;
 }
 
-// 选中文件夹（通过侧边栏或右侧列表或面包屑）
 function selectFolderByPath(folderPath) {
   fFolder = folderPath;
-  fCat = '';
+  sideExt = '';
   searchQ = '';
   document.getElementById('searchInput').value = '';
   document.getElementById('clearSearch').style.display = 'none';
   
-  // 更新面包屑
   updateBreadcrumb();
-  
-  // 高亮侧边栏对应项，并展开父级路径
   document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
   let targetEl = document.querySelector(`.tree-item[data-folder="${folderPath}"]`);
   if (targetEl) {
     targetEl.classList.add('active');
-    expandToFolder(folderPath);   // 自动展开当前文件夹的父级路径
+    expandToFolder(folderPath);
   } else {
     const rootItem = document.querySelector('.tree-item[data-folder=""]');
     if (rootItem) rootItem.classList.add('active');
   }
-  
   render();
 }
 
-function selectCat(el) {
+function selectSideExt(el) {
   document.querySelectorAll('.tree-item').forEach(x => x.classList.remove('active'));
   el.classList.add('active');
-  fCat = el.dataset.cat;
-  fFolder = "";
+  sideExt = el.dataset.extSide;
+  fFolder = ""; // 侧边栏点击全局接管，重置文件夹
+  topExt = "";  // 重置顶部快捷栏
+  document.querySelectorAll('.ext-tag').forEach(tag => tag.classList.remove('active'));
+  document.querySelector('.ext-tag[data-ext-top=""]').classList.add('active');
   updateBreadcrumb();
   render();
 }
 
-// 预览相关
 function showPreviewEnc(enc) { showPreview(JSON.parse(decodeURIComponent(enc))); }
 function showPreview(f) {
   document.getElementById('preview').classList.add('open');
@@ -534,7 +508,6 @@ function showPreview(f) {
   document.getElementById('pm-type').textContent = (f.ext || '—').toUpperCase();
   document.getElementById('pm-size').textContent = f.size || '—';
   document.getElementById('pm-date').textContent = f.date ? f.date.slice(0,10) : '—';
-  document.getElementById('pm-cat').textContent = f.cat;
   document.getElementById('pm-path').textContent = f.path;
   const thumb = document.getElementById('pvThumb');
   if (IMG_EXTS.has(f.ext)) {
@@ -560,18 +533,16 @@ function renderRecentBar(files) {
 
 function updateCounts() {
   document.getElementById('cnt-all').textContent = allFiles.length;
-  CATS.forEach(c => { const el = document.getElementById('c-'+CAT_ID[c]); if (el) el.textContent = allFiles.filter(f => f.cat === c).length; });
   const recent = [...allFiles].sort((a,b) => a.days - b.days);
   document.getElementById('sbRecent').innerHTML = recent.slice(0,5).map(f => `
     <div class="tree-item" onclick='showPreview(${JSON.stringify(f).replace(/'/g,"&#39;")})'>
       <i class="ti ${getIcon(f.ext,false)}"></i>
-      <span class="tree-nm">${escapeHtml(f.name)}</span>
+      <span class="tree-nm" style="text-transform:none">${escapeHtml(f.name)}</span>
       <span class="tree-cnt">${f.days===0?'今天':f.days+'d'}</span>
     </div>
   `).join('');
 }
 
-// 数据加载
 async function init() {
   allFiles = [];
   document.getElementById('fileList').innerHTML = '<div class="empty"><i class="ti ti-loader spin"></i><p>正在加载目录…</p></div>';
@@ -589,22 +560,22 @@ async function init() {
         folder: folder,
         url: url,
         days: daysSince(f.date),
-        cat: getCat(f.ext),
+        ext: (f.ext || '').toLowerCase(), // 统一转换为小写进行后续处理
         sizeBytes: parseSize(f.size)
       };
     });
-    // 构建侧边栏
+    
+    // 初始化动态组件
     buildSidebar();
+    buildCatSidebar();
+    buildTopExtFilters();
     updateCounts();
-    // 重置当前视图
-    fFolder = '';
-    fCat = '';
-    fExt = '';
-    searchQ = '';
+    
+    // 重置状态
+    fFolder = ''; sideExt = ''; topExt = ''; searchQ = '';
     document.getElementById('searchInput').value = '';
     document.getElementById('clearSearch').style.display = 'none';
-    document.querySelectorAll('.ext-tag').forEach(tag => tag.classList.remove('active'));
-    document.querySelector('.ext-tag[data-ext=""]').classList.add('active');
+    
     updateBreadcrumb();
     render();
     const recent = [...allFiles].sort((a,b) => a.days - b.days);
@@ -620,10 +591,14 @@ const si = document.getElementById('searchInput');
 const cb = document.getElementById('clearSearch');
 si.addEventListener('input', e => { searchQ = e.target.value; cb.style.display = searchQ ? 'block' : 'none'; render(); });
 cb.onclick = () => { si.value = ''; searchQ = ''; cb.style.display = 'none'; render(); };
+
+// 顶部过滤点击事件委托
 document.getElementById('extFilters').addEventListener('click', e => {
   const t = e.target.closest('.ext-tag'); if (!t) return;
   document.querySelectorAll('.ext-tag').forEach(x => x.classList.remove('active'));
-  t.classList.add('active'); fExt = t.dataset.ext; render();
+  t.classList.add('active'); 
+  topExt = t.dataset.extTop; 
+  render();
 });
 
 init();
