@@ -1,40 +1,43 @@
-name: directory-listing
-on: [push]
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  pages-directory-listing:
+  build:
     runs-on: ubuntu-latest
-    name: Directory Listings Index
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          ref: main    #checkout different branch
+      - uses: actions/checkout@v4
 
       - name: Generate Directory Listings
-        uses: jayanta525/github-pages-directory-listing@v3.0.0
+        uses: jayanta525/github-pages-directory-listing@v4.0.0
         with:
-          FOLDER: Files      #directory to generate index
+          FOLDER: Files
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - uses: actions/upload-pages-artifact@v3
         with:
-          path: 'Files'      # upload generated folder
-  
+          path: Files
+
   deploy:
-    needs: pages-directory-listing
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
+    needs: build
 
-    # Deploy to the github-pages environment
+    runs-on: ubuntu-latest
+
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
-    # Specify runner + deployment step
-    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+      - id: deployment
+        uses: actions/deploy-pages@v4
