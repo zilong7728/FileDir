@@ -7,7 +7,6 @@ BASE_DIR = "Files"
 OUTPUT_JSON = "index.json"
 
 def get_file_size_str(size_bytes):
-    """将字节数转换为人类可读格式"""
     if size_bytes < 1024:
         return f"{size_bytes} B"
     elif size_bytes < 1024 * 1024:
@@ -18,7 +17,6 @@ def get_file_size_str(size_bytes):
         return f"{size_bytes / (1024 * 1024 * 1024):.2f} GB"
 
 def get_file_info(file_path, base_dir):
-    """提取单个文件的元数据"""
     full_path = os.path.join(base_dir, file_path)
     rel_path = file_path.replace("\\", "/")
     
@@ -31,10 +29,12 @@ def get_file_info(file_path, base_dir):
     name = os.path.basename(file_path)
     ext = name.split('.')[-1].lower() if '.' in name else ''
     
+    # 文件夹路径：相对于 Files/ 的路径，不加前导斜杠，根目录为 ""（空字符串）
     folder_path = os.path.dirname(file_path).replace("\\", "/")
-    folder = "/" + folder_path if folder_path else "/"
+    # 如果文件就在 Files/ 根目录下，folder 设为 ""；否则设为不带前导斜杠的路径
+    folder = folder_path if folder_path else ""
     
-    # ✅ 修正URL：加上 Files/ 前缀
+    # URL 必须包含 /Files/ 前缀
     url = f"https://zilong7728.github.io/FileDir/Files/{rel_path}"
     
     return {
