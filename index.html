@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engineering Library</title>
+
+<style>
+body {
+    margin: 0;
+    background: #0d1117;
+    color: #c9d1d9;
+    font-family: Segoe UI, Arial;
+}
+
+/* 顶部栏 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+}
+
+.title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* 搜索 */
+.search input {
+    width: 240px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background: #0d1117;
+    color: #c9d1d9;
+}
+
+/* 主体 */
+.container {
+    padding: 20px;
+}
+
+/* 卡片布局 */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+}
+
+/* 文件卡片 */
+.card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 12px;
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    border-color: #58a6ff;
+}
+
+.card a {
+    color: #58a6ff;
+    text-decoration: none;
+    font-weight: 500;
+    word-break: break-all;
+}
+
+/* 标签 */
+.tag {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.pdf { background: #3b1d1d; color: #ff7b72; }
+.zip { background: #2b1a3b; color: #d2a8ff; }
+.img { background: #1b2a3a; color: #79c0ff; }
+.folder { background: #1b3a2a; color: #3fb950; }
+.other { background: #2a2f3a; color: #8b949e; }
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="title">📁 Engineering Data Library</div>
+    <div class="search">
+        <input id="search" placeholder="Search files...">
+    </div>
+</div>
+
+<div class="container">
+    <div id="grid" class="grid">
+        <!-- directory-listing 生成内容会在这里 -->
+    </div>
+</div>
+
+<script>
+
+/* 搜索过滤 */
+document.getElementById("search").addEventListener("input", function () {
+    let v = this.value.toLowerCase();
+    document.querySelectorAll(".card").forEach(c => {
+        c.style.display = c.innerText.toLowerCase().includes(v) ? "" : "none";
+    });
+});
+
+/* 文件类型识别 */
+function getType(name) {
+    name = name.toLowerCase();
+    if (name.endsWith(".pdf")) return "pdf";
+    if (name.endsWith(".zip") || name.endsWith(".rar")) return "zip";
+    if (name.endsWith(".png") || name.endsWith(".jpg")) return "img";
+    if (!name.includes(".")) return "folder";
+    return "other";
+}
+
+/* 美化 directory listing */
+function enhance() {
+    const container = document.getElementById("grid");
+
+    // 兼容目录列表（a标签）
+    let links = document.querySelectorAll("a");
+
+    links.forEach(a => {
+        let name = a.innerText.trim();
+
+        if (!name || name === "../") return;
+
+        let type = getType(name);
+
+        let card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+            <div>📄</div>
+            <a href="${a.href}">${name}</a>
+            <div class="tag ${type}">${type.toUpperCase()}</div>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+/* 等待 GitHub Pages 渲染 */
+window.onload = () => {
+    setTimeout(enhance, 300);
+};
+
+</script>
+
+</body>
+</html>
