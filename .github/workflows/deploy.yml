@@ -1,43 +1,38 @@
-name: Deploy GitHub Pages
+name: directory-listing
 
-on:
-  push:
-    branches:
-      - main
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+on: [push]
 
 jobs:
-  build:
+  pages-directory-listing:
     runs-on: ubuntu-latest
-
+    name: Directory Listings Index
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Generate Directory Listings
         uses: jayanta525/github-pages-directory-listing@v4.0.0
         with:
-          FOLDER: Files
+          FOLDER: Files   # ← 改成你实际的文件夹名
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Inject custom portal as root index
+        run: cp .github/_portal.html Files/index.html
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3.0.1
         with:
-          path: Files
+          path: 'Files'
 
   deploy:
-    needs: build
-
-    runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-
+    needs: pages-directory-listing
     permissions:
       pages: write
       id-token: write
-
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.0
