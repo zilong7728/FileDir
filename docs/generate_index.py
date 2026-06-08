@@ -34,8 +34,9 @@ def get_file_info(file_path, base_dir):
     # 如果文件就在 Files/ 根目录下，folder 设为 ""；否则设为不带前导斜杠的路径
     folder = folder_path if folder_path else ""
     
-    # URL 必须包含 /Files/ 前缀
-    url = f"https://zilong7728.github.io/FileDir/Files/{rel_path}"
+    # 【核心修改点 👇】
+    # 丢弃绝对链接，直接采用相对于 index.html 的相对路径
+    url = f"./Files/{rel_path}"
     
     return {
         "name": name,
