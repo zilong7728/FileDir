@@ -1,0 +1,70 @@
+Fclk=1;    %时钟频率为1Hz
+Num_T=1000; %信号长度为1000个时钟周期
+Num_Data=10;  %数据线的个数10个
+
+%%%%%%%%%%%%%%%%%%%%%%%%  fft采样设置
+Fs=100;  %采样率为Fs 
+L=(Fs/Fclk)*Num_T;   %信号长度(采样总点数)：Num_T个周期的信号，长度越长，fft精度越高，但是执行时间越长
+T=1/Fs;    %采样周期
+t=(1:L)*T; %时间长度
+
+%SIG_DATA=round(rand(Num_Data,2*Num_T));   %产生数据信号：0,1随机分布
+SIG_DATA=round(rand(Num_Data,Num_T));   %产生数据信号：0,1随机分布
+SIG_CLK=rand(1,2*Num_T);                  %产生时钟信号
+for i = 1:length(SIG_CLK)
+    if mod(i,2)
+        SIG_CLK(i)=1;
+    else
+        SIG_CLK(i)=0;
+    end
+end
+
+N=length(t);
+LEN_CLK=zeros(1,N);  %定义时钟信号采样序列
+LEN_DATA=zeros(Num_Data,N); %定义数据信号采样序列
+for i=1:N
+        LEN_CLK(i)=SIG_CLK(ceil(i/((Fs/Fclk)/2)));    %时钟信号的采样序列
+        for j=1:Num_Data
+%             LEN_DATA(j,i)=SIG_DATA(j,ceil(i/((Fs/Fclk)/2)));   %数据信号的采样序列
+            LEN_DATA(j,i)=SIG_DATA(j,ceil(i/(Fs/Fclk)));   %数据信号的采样序列
+        end
+end
+
+figure;
+subplot(2,2,[1 2]);
+plot(t,LEN_CLK+1.5*Num_Data,'r');      %画出30个时钟周期时钟信号
+set(gca,'XLim',[0 30]);%x轴的数据显示范围,0-30
+
+set(gca,'ytick',[]);
+grid on;
+hold on
+for j=1:Num_Data
+    plot(t,LEN_DATA(j,:)+(j-1)*1.5,'k');
+    hold on
+end
+
+X_LEN_CLK=abs(fft(LEN_CLK));
+subplot(2,2,3);
+semilogx(Fs*(0:(L/2))/L,X_LEN_CLK(1:L/2+1)*2/L); 
+set(gca,'XLim',[0.1 10000]);%x轴的数据显示范围
+set(gca, 'XTickLabel' ,{'0.1','1','10','100','10K','100K'}); %x轴频率数据
+title('时钟频谱');
+set(gca,'YLim',[-0.1 1]);
+xlabel('f (Hz)');
+ylabel('幅度');
+
+X1_LEN_DATA= abs(fft(LEN_DATA(1,:)));
+X_LEN_DATA = abs(fft(LEN_DATA(1,:)));
+for j=2:Num_Data
+    X_LEN_DATA = abs(fft(LEN_DATA(j,:)))+X_LEN_DATA;
+end
+
+subplot(2,2,4);
+semilogx(Fs*(0:(L/2))/L,X_LEN_DATA(1:L/2+1)*2/L,Fs*(0:(L/2))/L,X1_LEN_DATA(1:L/2+1)*2/L); 
+legend(['',num2str(Num_Data),'根-数据线'],[' 1根-数据线']);
+set(gca,'XLim',[0.1 10000]);%x轴的数据显示范围
+set(gca, 'XTickLabel' ,{'0.1','1','10','100','10K','100K'}); %x轴频率数据
+title(['',num2str(Num_Data),'数据线频谱']);
+set(gca,'YLim',[-0.1 1]);
+xlabel('f (Hz)');
+ylabel('幅度');

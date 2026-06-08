@@ -1,0 +1,92 @@
+Fclk=1;     %被调制时钟频率为1Hz
+Fsj=0.001;   %调制速度为0.01Hz三角波
+Depth=0.02;  %调制深度为1% 
+Num_T=1/Fsj; %信号长度为Num_T个时钟周期
+
+Fs=10000;  %采样率为Fs
+L=(Fs/Fclk)*Num_T;   %信号长度(采样总点数)：Num_T个周期的信号，长度越长，fft精度越高，但是执行时间越长
+T=1/Fs;    %采样周期
+t=(1:L)*T; %时间长度
+
+SIG_CLK=rand(1,2*Num_T);                  %产生未经调制的时钟信号
+for i = 1:length(SIG_CLK)
+    if mod(i,2)
+        SIG_CLK(i)=1;
+    else
+        SIG_CLK(i)=0;
+    end
+end
+
+N=length(t);
+LEN_CLK=zeros(1,N);  %定义时钟信号采样序列
+for i=1:N
+        LEN_CLK(i)=SIG_CLK(ceil(i/((Fs/Fclk)/2)));    %时钟信号的采样序列
+end
+
+Num_sj=Fsj*Num_T/Fclk  %三角波有Num_sj个
+Num_Per_sj=Num_T/Num_sj %每个三角波有Num_Per_sj个时钟周期   
+F_MOD_Serial=repmat([linspace((1-Depth)*Fclk,(1+Depth)*Fclk,Num_Per_sj/2),linspace((1+Depth)*Fclk,(1-Depth)*Fclk,Num_Per_sj/2)],1,Num_sj)  %各个时钟周期值 序列
+T_MOD_Serial=round((1./F_MOD_Serial).*Fs)   %每个周期的点数
+
+N=length(t);
+LEN_CLK_M=zeros(1,N);  %定义未经调制的时钟信号采样序列
+SUM_T_MOD_Serial=0;
+k=1;
+for i=1:N 
+       if i-SUM_T_MOD_Serial<T_MOD_Serial(k)/2
+              LEN_CLK_M(i)=1;
+       else
+           if i-SUM_T_MOD_Serial< T_MOD_Serial(k)
+                   LEN_CLK_M(i)=0;
+           else
+                   LEN_CLK_M(i)=1;
+                   SUM_T_MOD_Serial = SUM_T_MOD_Serial+T_MOD_Serial(k);
+                   k=k+1;
+           end
+       end
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+figure;
+plot(t,LEN_CLK+1.1,'r',t,LEN_CLK_M,'k');      %画出100个时钟周期时钟信号
+set(gca,'XLim',[0 100]);%x轴的数据显示范围,0-60
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+figure;
+subplot(2,2,[1 2]);
+plot(t,LEN_CLK+1.1,'r',t,LEN_CLK_M,'k');      %画出100个时钟周期时钟信号
+set(gca,'XLim',[0 100]);%x轴的数据显示范围,0-100
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%原始时钟频谱
+X_LEN_CLK=abs(fft(LEN_CLK));             
+subplot(2,2,3);
+semilogx(Fs*(0:(L/2))/L,X_LEN_CLK(1:L/2+1)*2/L);
+% set(gca, 'XTickLabel' ,{'0.1','1','10','100','10K','100K'}); %x轴频率数据
+title('原始时钟频谱');
+set(gca,'XLim',[0.5 1000]);%x轴的数据显示范围
+set(gca,'YLim',[0.0001 0.7]);%y轴的数据显示范围
+xlabel('f (Hz)');
+ylabel('幅度');
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%展频后时钟频谱
+X1_LEN_CLK=abs(fft(LEN_CLK_M)); 
+subplot(2,2,4);
+semilogx(Fs*(0:(L/2))/L,X1_LEN_CLK(1:L/2+1)*2/L); 
+%loglog(Fs*(0:(L/2))/L,X1_LEN_CLK(1:L/2+1)*2/L);
+% set(gca, 'XTickLabel' ,{'0.1','1','10','100','10K','100K'}); %x轴频率数据
+title('展频后时钟频谱');
+set(gca,'XLim',[0.5 1000]);%x轴的数据显示范围
+set(gca,'YLim',[0.0001 0.7]);%y轴的数据显示范围
+xlabel('f (Hz)');
+ylabel('幅度');
+
+figure;
+semilogx(Fs*(0:(L/2))/L,X1_LEN_CLK(1:L/2+1)*2/L);
+title('展频后时钟频谱');
+set(gca,'XLim',[0.95 1.05]);%x轴的数据显示范围
+set(gca,'YLim',[0.0001 0.25]);%y轴的数据显示范围
+xlabel('f (Hz)');
+ylabel('幅度');
+
