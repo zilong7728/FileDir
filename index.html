@@ -92,14 +92,16 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 .new-b{font-size:11px;background:#E1F5EE;color:#0F6E56;padding:2px 6px;border-radius:3px;flex-shrink:0;font-weight:600;letter-spacing:.05em}
 .empty{padding:48px 16px;text-align:center;color:var(--muted)}
 .empty i{font-size:40px;display:block;margin-bottom:10px}
-/* ── 预览面板：默认隐藏，打开时覆盖整个主内容区 ── */
+/* ── 预览面板：浮层，只覆盖 content 区，侧边栏不受影响 ── */
 .preview{
   display:none;
-  position:absolute;top:var(--hh);left:var(--sw);right:0;bottom:36px; /* 36px = recent-bar高度 */
+  position:absolute;
+  top:0;right:0;bottom:0;left:var(--sw);
   background:var(--surface);
   border-left:1px solid var(--border);
   flex-direction:column;
   z-index:10;
+  box-shadow:-4px 0 20px rgba(0,0,0,0.10);
 }
 .preview.open{display:flex}
 /* 顶部工具栏 */
@@ -152,7 +154,7 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 @media(max-width:640px){
   .sidebar{display:none}
   .f-date,.f-size{display:none}
-  .preview.open{left:0}
+  .preview.open{left:0!important}
 }
 </style>
 </head>
