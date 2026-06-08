@@ -13,15 +13,49 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
+          
       - name: Generate index.json
         run: python docs/generate_index.py
+        
+      # ✨ 新增步骤：动态修改 README.md 中的链接
+      - name: Update README Link
+        env:
+          # 将 GitHub 自带的仓库信息传递给 Python 变量
+          REPO_INFO: ${{ github.repository }} 
+        run: |
+          python -c "
+          import os
+          repo_info = os.getenv('REPO_INFO', '')
+          if '/' in repo_info:
+              owner, repo = repo_info.split('/')
+              # 判断是否为根目录主页仓库，动态生成正确的 Pages 网址
+              if repo.lower() == f'{owner.lower()}.github.io':
+                  pages_url = f'https://{owner}.github.io/'
+              else:
+                  pages_url = f'https://{owner}.github.io/{repo}/'
+              
+              # 读取 README 并替换原作者的硬编码链接
+              with open('README.md', 'r', encoding='utf-8') as f:
+                  content = f.read()
+              
+              # 只有当包含原链接时才替换（防止后续重复运行报错）
+              target_url = 'https://zilong7728.github.io/FileDir/'
+              if target_url in content:
+                  updated_content = content.replace(target_url, pages_url)
+                  with open('README.md', 'w', encoding='utf-8') as f:
+                      f.write(updated_content)
+                  print(f'成功将 README 链接修改为: {pages_url}')
+          "
+
       - name: Commit and Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/index.json
-          git commit -m "Auto-update index.json" || echo "No changes to commit"
+          # 💡 注意：这里要把 README.md 也加进暂存区
+          git add docs/index.json README.md
+          git commit -m "Auto-update index.json and README.md" || echo "No changes to commit"
           git push
