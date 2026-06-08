@@ -64,8 +64,8 @@ FileDir/
 
 **🙌 特别致谢 (Credits)：**
 
-- **灵感来源**：本项目的设计灵感与核心理念深受开源项目 [github-pages-directory-listing](https://github.com/jayanta525/github-pages-directory-listing) 的启发。在此向原作者表示由衷的感谢。
-- **AI 赋能**：本项目的整个代码重构、双分支隔离架构设计、以及全套核心功能（目录树、模糊搜索、快捷统计等）的二次开发迭代，均在 **Gemini / Claude / ChatGPT** 等前沿人工智能模型的深度辅助下开发完成。
+- **灵感来源**：本项目的设计灵感与核心理念深受开源项目 [github-pages-directory-listing](https://github.com/jayanta525/github-pages-directory-listing) 的启发。
+- **AI 赋能**：本项目的整个代码和全套核心功能（目录树、模糊搜索、快捷统计等）的二次开发迭代，均在 **Gemini / Claude / ChatGPT** 等前沿人工智能模型的深度辅助下开发完成。
 
 ---
 ## ⚖️ 侵权声明
