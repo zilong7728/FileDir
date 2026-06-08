@@ -610,6 +610,7 @@ function handleOverlayClick(e) {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
 
 async function showPreview(f) {
+  f.url = new URL(f.url, window.location.href).href;
   const overlay = document.getElementById('modalOverlay');
   const pv = document.getElementById('preview');
   overlay.classList.add('open');
