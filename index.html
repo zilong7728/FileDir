@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>工程资料库 Pro</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
 <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
 <style>
@@ -224,7 +223,6 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 
   <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
   <aside class="preview" id="preview">
-    <!-- 顶部工具栏 -->
     <div class="pv-hdr">
       <div class="pv-hdr-left">
         <i class="ti ti-file" id="pvHeaderIcon"></i>
@@ -237,7 +235,6 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
       </div>
       <span class="close-btn" title="关闭预览" onclick="closePreview()"><i class="ti ti-x"></i></span>
     </div>
-    <!-- 主体：左侧内容 + 右侧info -->
     <div class="pv-body">
       <div class="pv-main">
         <div class="pv-thumb" id="pvThumb"><i class="ti ti-file"></i></div>
@@ -272,9 +269,17 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 // ── 配置区 ────────────────────────────────────────────────────────
 const IMG_EXTS = new Set(['png','jpg','jpeg','gif','webp','svg']);
 const OFFICE_EXTS = new Set(['doc','docx','xls','xlsx','ppt','pptx','csv']);
-const DIRECT_EXTS = new Set(['pdf']); 
-// 新增：需要直接在右侧高亮渲染的代码和文本格式
-const CODE_EXTS = new Set(['py','il','cxt','yml','json','js','sh','html','css','c','cpp','txt','md','xml']);
+
+// 💡 扩展原生直接跳页查看的格式，将音视频和基础文本加入
+const DIRECT_EXTS = new Set(['pdf','txt','md','mp4','webm','ogv','mp3','wav','ogg','m4a']); 
+
+// 💡 新增：音视频原生解算后缀分类
+const VIDEO_EXTS = new Set(['mp4', 'webm', 'ogv']);
+const AUDIO_EXTS = new Set(['mp3', 'wav', 'ogg', 'm4a']);
+
+// 需要直接在高亮卡片里渲染的代码和文本格式
+const CODE_EXTS = new Set(['py','il','cxt','yml','json','js','sh','html','css','c','cpp','txt','md','xml','log']);
+
 const EXT_ICON = {
   pdf:'ti-file-type-pdf',
   ibs:'ti-wave-sine', ibis:'ti-wave-sine', s1p:'ti-wave-sine', s2p:'ti-wave-sine', s4p:'ti-wave-sine',
@@ -283,7 +288,9 @@ const EXT_ICON = {
   py:'ti-brand-python', js:'ti-brand-javascript', sh:'ti-terminal', exe:'ti-device-desktop',
   xlsx:'ti-file-spreadsheet', csv:'ti-file-spreadsheet',
   docx:'ti-file-word', doc:'ti-file-word',
-  txt:'ti-file-text', md:'ti-markdown', db:'ti-database'
+  txt:'ti-file-text', md:'ti-markdown', db:'ti-database',
+  mp4:'ti-video', webm:'ti-video', ogv:'ti-video',
+  mp3:'ti-volume', wav:'ti-volume', m4a:'ti-volume'
 };
 const EXT_CLR = {
   pdf:'ic-pdf', ibs:'ic-ibs', ibis:'ic-ibs', s1p:'ic-ibs', s2p:'ic-ibs', s4p:'ic-ibs',
@@ -589,43 +596,11 @@ function selectSideExt(el) {
 }
 
 function showPreviewEnc(enc) { showPreview(JSON.parse(decodeURIComponent(enc))); }
-// function showPreview(f) {
-//   document.getElementById('preview').classList.add('open');
-//   document.getElementById('pvTitle').textContent = f.name;
-//   document.getElementById('pm-name').textContent = f.name;
-//   document.getElementById('pm-type').textContent = (f.ext || '—').toUpperCase();
-//   document.getElementById('pm-size').textContent = f.size || '—';
-//   document.getElementById('pm-date').textContent = f.date ? f.date.slice(0,10) : '—';
-//   document.getElementById('pm-path').textContent = f.path;
-  
-//   const thumb = document.getElementById('pvThumb');
-//   if (IMG_EXTS.has(f.ext)) {
-//     thumb.innerHTML = `<img src="${f.url}" alt="${f.name}" onerror="this.parentNode.innerHTML='<i class=\\'ti ti-photo\\' style=\\'font-size:48px\\'></i>'">`;
-//   } else {
-//     thumb.innerHTML = `<i class="ti ${getIcon(f.ext,false)}" style="font-size:48px"></i>`;
-//   }
-  
-//   const pvOpen = document.getElementById('pvOpen');
-//   const pvDown = document.getElementById('pvDown');
-  
-//   // 预览按钮修改逻辑
-//   if (DIRECT_EXTS.has(f.ext)) {
-//     pvOpen.href = f.url;
-//     pvOpen.style.display = 'flex';
-//   } else if (OFFICE_EXTS.has(f.ext)) {
-//     const absoluteUrl = new URL(f.url, window.location.href).href;
-//     pvOpen.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
-//     pvOpen.style.display = 'flex';
-//   } else {
-//     pvOpen.style.display = 'none';
-//   }
-  
-//   pvDown.href = f.url;
-//   pvDown.download = f.name;
-// }
 
 function closePreview() {
   document.getElementById('modalOverlay').classList.remove('open');
+  // 💡 安全释放：关闭弹窗时立刻斩断流媒体源，防止声音或视频在后台继续偷偷播放
+  document.getElementById('pvThumb').innerHTML = '';
 }
 
 function handleOverlayClick(e) {
@@ -639,7 +614,8 @@ async function showPreview(f) {
   const pv = document.getElementById('preview');
   overlay.classList.add('open');
 
-  const hasContent = IMG_EXTS.has(f.ext) || CODE_EXTS.has(f.ext);
+  // 💡 将音视频加入大视图特征集，确保多媒体打开时保持 900px 宽的极客大开屏
+  const hasContent = IMG_EXTS.has(f.ext) || CODE_EXTS.has(f.ext) || VIDEO_EXTS.has(f.ext) || AUDIO_EXTS.has(f.ext);
   pv.classList.toggle('pv-sm', !hasContent);
 
   document.getElementById('pvTitle').textContent = f.name;
@@ -658,12 +634,28 @@ async function showPreview(f) {
   pv.querySelector('.pv-main').style.display = hasContent ? '' : 'none';
 
   const thumb = document.getElementById('pvThumb');
+  // 基础布局重置
   thumb.style.justifyContent = 'center';
   thumb.style.alignItems = 'center';
+  thumb.style.background = 'transparent';
 
   if (IMG_EXTS.has(f.ext)) {
     thumb.innerHTML = `<img src="${f.url}" alt="${f.name}" onerror="this.parentNode.innerHTML='<i class=\\'ti ti-photo\\' style=\\'font-size:72px;color:var(--muted)\\'></i>'">`;
-  } else if (CODE_EXTS.has(f.ext)) {
+  } 
+  // ── 💡 缝合：原生 MP4/WebM 视频在大遮罩层内的渲染 ──
+  else if (VIDEO_EXTS.has(f.ext)) {
+    thumb.style.background = '#000'; // 黑色大背景，强化影音暗房的高级感
+    thumb.innerHTML = `<video src="${f.url}" controls preload="metadata" style="width:100%; height:100%; max-height:100%; object-fit:contain; outline:none;"></video>`;
+  } 
+  // ── 💡 缝合：原生 MP3/WAV 音频控制条渲染 ──
+  else if (AUDIO_EXTS.has(f.ext)) {
+    thumb.innerHTML = `
+      <div style="padding:40px; width:100%; text-align:center; max-width:420px;">
+        <i class="ti ti-volume" style="font-size:56px; color:var(--accent); display:block; margin-bottom:16px;"></i>
+        <audio src="${f.url}" controls style="width:100%; outline:none;"></audio>
+      </div>`;
+  } 
+  else if (CODE_EXTS.has(f.ext)) {
     thumb.style.justifyContent = 'flex-start';
     thumb.style.alignItems = 'flex-start';
     thumb.innerHTML = `<div style="padding:32px;width:100%;text-align:center;color:var(--muted);"><i class="ti ti-loader spin"></i> 正在拉取代码...</div>`;
@@ -766,7 +758,6 @@ document.getElementById('extFilters').addEventListener('click', e => {
 });
 
 init();
-
 </script>
 </body>
 </html>
