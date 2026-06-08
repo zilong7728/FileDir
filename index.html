@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>工程资料库 Pro</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
+<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -209,10 +212,10 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 <script>
 // ── 配置区 ────────────────────────────────────────────────────────
 const IMG_EXTS = new Set(['png','jpg','jpeg','gif','webp','svg']);
-// 新增：Office 及直出格式配置
 const OFFICE_EXTS = new Set(['doc','docx','xls','xlsx','ppt','pptx','csv']);
-const DIRECT_EXTS = new Set(['pdf','txt','md','py','il','json','sh','html']);
-
+const DIRECT_EXTS = new Set(['pdf']); 
+// 新增：需要直接在右侧高亮渲染的代码和文本格式
+const CODE_EXTS = new Set(['py','il','cxt','yml','json','js','sh','html','css','c','cpp','txt','md','xml']);
 const EXT_ICON = {
   pdf:'ti-file-type-pdf',
   ibs:'ti-wave-sine', ibis:'ti-wave-sine', s1p:'ti-wave-sine', s2p:'ti-wave-sine', s4p:'ti-wave-sine',
@@ -527,7 +530,42 @@ function selectSideExt(el) {
 }
 
 function showPreviewEnc(enc) { showPreview(JSON.parse(decodeURIComponent(enc))); }
-function showPreview(f) {
+// function showPreview(f) {
+//   document.getElementById('preview').classList.add('open');
+//   document.getElementById('pvTitle').textContent = f.name;
+//   document.getElementById('pm-name').textContent = f.name;
+//   document.getElementById('pm-type').textContent = (f.ext || '—').toUpperCase();
+//   document.getElementById('pm-size').textContent = f.size || '—';
+//   document.getElementById('pm-date').textContent = f.date ? f.date.slice(0,10) : '—';
+//   document.getElementById('pm-path').textContent = f.path;
+  
+//   const thumb = document.getElementById('pvThumb');
+//   if (IMG_EXTS.has(f.ext)) {
+//     thumb.innerHTML = `<img src="${f.url}" alt="${f.name}" onerror="this.parentNode.innerHTML='<i class=\\'ti ti-photo\\' style=\\'font-size:48px\\'></i>'">`;
+//   } else {
+//     thumb.innerHTML = `<i class="ti ${getIcon(f.ext,false)}" style="font-size:48px"></i>`;
+//   }
+  
+//   const pvOpen = document.getElementById('pvOpen');
+//   const pvDown = document.getElementById('pvDown');
+  
+//   // 预览按钮修改逻辑
+//   if (DIRECT_EXTS.has(f.ext)) {
+//     pvOpen.href = f.url;
+//     pvOpen.style.display = 'flex';
+//   } else if (OFFICE_EXTS.has(f.ext)) {
+//     const absoluteUrl = new URL(f.url, window.location.href).href;
+//     pvOpen.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
+//     pvOpen.style.display = 'flex';
+//   } else {
+//     pvOpen.style.display = 'none';
+//   }
+  
+//   pvDown.href = f.url;
+//   pvDown.download = f.name;
+// }
+
+async function showPreview(f) {
   document.getElementById('preview').classList.add('open');
   document.getElementById('pvTitle').textContent = f.name;
   document.getElementById('pm-name').textContent = f.name;
@@ -537,8 +575,31 @@ function showPreview(f) {
   document.getElementById('pm-path').textContent = f.path;
   
   const thumb = document.getElementById('pvThumb');
+  // 每次打开先重置样式
+  thumb.style.justifyContent = 'center';
+  thumb.style.alignItems = 'center';
+  thumb.style.overflow = 'hidden';
+  
   if (IMG_EXTS.has(f.ext)) {
     thumb.innerHTML = `<img src="${f.url}" alt="${f.name}" onerror="this.parentNode.innerHTML='<i class=\\'ti ti-photo\\' style=\\'font-size:48px\\'></i>'">`;
+  } else if (CODE_EXTS.has(f.ext)) {
+    // 💡 核心新增：代码文件处理逻辑
+    thumb.style.justifyContent = 'flex-start';
+    thumb.style.alignItems = 'flex-start';
+    thumb.style.overflow = 'auto'; // 允许代码溢出时滚动
+    thumb.innerHTML = `<div style="padding:20px;width:100%;text-align:center;color:var(--muted);"><i class="ti ti-loader spin"></i> 正在拉取代码...</div>`;
+    
+    try {
+      const resp = await fetch(f.url);
+      if (!resp.ok) throw new Error('网络请求失败');
+      const textContent = await resp.text();
+      // 使用 pre 和 code 标签包裹，指定 language 以提高高亮准确度
+      thumb.innerHTML = `<pre style="margin:0;width:100%;background:var(--bg);"><code class="language-${f.ext}" style="padding:12px;font-size:13px;background:transparent;border-radius:0;">${escapeHtml(textContent)}</code></pre>`;
+      // 触发 Highlight.js 渲染
+      if (window.hljs) hljs.highlightElement(thumb.querySelector('code'));
+    } catch (e) {
+      thumb.innerHTML = `<div style="padding:20px;width:100%;text-align:center;color:#A32D2D;"><i class="ti ti-error"></i> 无法读取文件内容</div>`;
+    }
   } else {
     thumb.innerHTML = `<i class="ti ${getIcon(f.ext,false)}" style="font-size:48px"></i>`;
   }
@@ -546,7 +607,6 @@ function showPreview(f) {
   const pvOpen = document.getElementById('pvOpen');
   const pvDown = document.getElementById('pvDown');
   
-  // 预览按钮修改逻辑
   if (DIRECT_EXTS.has(f.ext)) {
     pvOpen.href = f.url;
     pvOpen.style.display = 'flex';
