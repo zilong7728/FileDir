@@ -49,18 +49,25 @@ FileDir/
 ```
 ---
 ## ⚙️ 工作原理
+
 彻底排除了传统的页面抓取模式。当仓库的 `Files/` 目录发生变动并推送到 GitHub 时，**GitHub Actions** 会自动触发 `docs/generate_index.py` 脚本，极速扫描最新的文件结构，并生成轻量化的 `index.json` 数据文件存入 `docs/` 目录。
+
 前端页面 `index.html` 部署在根目录，加载时直接 `fetch` 位于 `docs/index.json` 的数据文件，在本地瞬间完成目录树构建、分类、搜索与渲染，全程无需任何后端服务器介入，速度极快且高度稳定。
 
 ---
 ## 🛠️ 技术栈与致谢
-* **前端实现**：纯原生 HTML / CSS / JavaScript，无框架依赖，无构建步骤
-* **数据生成**：Python (自动化文件树遍历与信息提取)
-* **UI 资源**：[Tabler Icons](https://tabler-icons.io/) 图标、[IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono) 字体
-* **托管服务**：GitHub Pages + GitHub Actions
+
+- **前端实现**：纯原生 HTML / CSS / JavaScript，无框架依赖，无构建步骤
+- **数据生成**：Python (自动化文件树遍历与信息提取)
+- **UI 资源**：[Tabler Icons](https://tabler-icons.io/) 图标、[IBM Plex Mono](https://fonts.google.com/specimen/IBM+Plex+Mono) 字体
+- **托管服务**：GitHub Pages + GitHub Actions
+
 **🙌 特别致谢 (Credits)：**
-* **灵感来源**：本项目的设计灵感与核心理念深受开源项目 [github-pages-directory-listing](https://github.com/jayanta525/github-pages-directory-listing) 的启发。在此向原作者表示由衷的感谢。
-* **AI 赋能**：本项目的整个代码重构、双分支隔离架构设计、以及全套核心功能（目录树、模糊搜索、快捷统计等）的二次开发迭代，均在 **Gemini / Claude / ChatGPT** 等前沿人工智能模型的深度辅助下开发完成。
+
+- **灵感来源**：本项目的设计灵感与核心理念深受开源项目 [github-pages-directory-listing](https://github.com/jayanta525/github-pages-directory-listing) 的启发。在此向原作者表示由衷的感谢。
+- **AI 赋能**：本项目的整个代码重构、双分支隔离架构设计、以及全套核心功能（目录树、模糊搜索、快捷统计等）的二次开发迭代，均在 **Gemini / Claude / ChatGPT** 等前沿人工智能模型的深度辅助下开发完成。
+
 ---
 ## ⚖️ 侵权声明
+
 本仓库收录的资料均来自公开渠道，仅供个人学习参考。如有侵权，请 [提交 Issue](https://github.com/zilong7728/FileDir/issues) 联系删除。
