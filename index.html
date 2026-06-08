@@ -208,7 +208,12 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 
 <script>
 // ── 配置区 ────────────────────────────────────────────────────────
+// ── 配置区 ────────────────────────────────────────────────────────
 const IMG_EXTS = new Set(['png','jpg','jpeg','gif','webp','svg']);
+// 新增这一行：定义支持在线预览的 Office 格式
+const OFFICE_EXTS = new Set(['doc','docx','xls','xlsx','ppt','pptx','csv']);
+const DIRECT_EXTS = new Set(['pdf','txt','md','py','il','json','sh','html']);
+
 const EXT_ICON = {
   pdf:'ti-file-type-pdf',
   ibs:'ti-wave-sine', ibis:'ti-wave-sine', s1p:'ti-wave-sine', s2p:'ti-wave-sine', s4p:'ti-wave-sine',
@@ -552,11 +557,20 @@ function showPreview(f) {
   }
   const pvOpen = document.getElementById('pvOpen');
   const pvDown = document.getElementById('pvDown');
-  if (f.ext === 'pdf') { pvOpen.href = f.url; pvOpen.style.display = 'flex'; }
-  else pvOpen.style.display = 'none';
-  pvDown.href = f.url;
-  pvDown.download = f.name;
-}
+  // 修改后的完整判断逻辑：
+  if (DIRECT_EXTS.has(f.ext)) { 
+    // 浏览器原生支持的纯文本/代码/PDF，直接用原生 URL 打开
+    pvOpen.href = f.url; 
+    pvOpen.style.display = 'flex'; 
+  } else if (OFFICE_EXTS.has(f.ext)) {
+    // Office 文件，交给微软接口解析
+    const absoluteUrl = new URL(f.url, window.location.href).href;
+    pvOpen.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
+    pvOpen.style.display = 'flex';
+  } else {
+    // 其他不支持预览的未知格式，隐藏预览按钮，只保留下载
+    pvOpen.style.display = 'none';
+  }
 
 function renderRecentBar(files) {
   document.getElementById('recentChips').innerHTML = files.map(f => `
