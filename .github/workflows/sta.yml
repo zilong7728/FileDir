@@ -1,0 +1,32 @@
+name: Update Index on Data Branch
+
+on:
+  push:
+    branches: ["data"]  # 修改1：只监听 data 分支
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: data  # 修改2：明确检出 data 分支
+      
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Generate index.json
+        run: python docs/generate_index.py
+      
+      - name: Commit and Push to Data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/index.json
+          git commit -m "Update my personal data index" || echo "No changes to commit"
+          git push origin data  # 修改3：明确推回 data 分支
