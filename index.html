@@ -208,9 +208,8 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 
 <script>
 // ── 配置区 ────────────────────────────────────────────────────────
-// ── 配置区 ────────────────────────────────────────────────────────
 const IMG_EXTS = new Set(['png','jpg','jpeg','gif','webp','svg']);
-// 新增这一行：定义支持在线预览的 Office 格式
+// 新增：Office 及直出格式配置
 const OFFICE_EXTS = new Set(['doc','docx','xls','xlsx','ppt','pptx','csv']);
 const DIRECT_EXTS = new Set(['pdf','txt','md','py','il','json','sh','html']);
 
@@ -360,7 +359,6 @@ function toggleFolder(folderPath) {
 }
 
 function expandToFolder(folderPath) {
-  // 确保根节点始终展开
   const rootChild = document.getElementById(`children-root`);
   const rootArrow = document.getElementById(`arrow-root`);
   if (rootChild) rootChild.style.display = 'block';
@@ -447,7 +445,6 @@ function render() {
   }
   let html = '';
   
-  // 在全局“全部文件”视图下，自动按后缀折叠排版
   if (fFolder === null && !sideExt && !searchQ && !topExt) {
     const fileItems = items.filter(i => !i.isDir);
     const uniqueExts = [...new Set(fileItems.map(f => f.ext).filter(e => e !== ''))].sort();
@@ -498,10 +495,7 @@ function rowHtml(item) {
 }
 
 function selectAllFiles() {
-  fFolder = null;
-  sideExt = '';
-  topExt = '';
-  searchQ = '';
+  fFolder = null; sideExt = ''; topExt = ''; searchQ = '';
   document.getElementById('searchInput').value = '';
   document.getElementById('clearSearch').style.display = 'none';
   
@@ -512,32 +506,24 @@ function selectAllFiles() {
 }
 
 function selectFolderByPath(folderPath) {
-  fFolder = folderPath;
-  sideExt = '';
-  searchQ = '';
+  fFolder = folderPath; sideExt = ''; searchQ = '';
   document.getElementById('searchInput').value = '';
   document.getElementById('clearSearch').style.display = 'none';
   
   updateBreadcrumb();
   document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
   let targetEl = document.querySelector(`.tree-item[data-folder="${folderPath}"]`);
-  if (targetEl) {
-    targetEl.classList.add('active');
-    expandToFolder(folderPath);
-  }
+  if (targetEl) { targetEl.classList.add('active'); expandToFolder(folderPath); }
   render();
 }
 
 function selectSideExt(el) {
   document.querySelectorAll('.tree-item').forEach(x => x.classList.remove('active'));
   el.classList.add('active');
-  sideExt = el.dataset.extSide;
-  fFolder = null; 
-  topExt = "";  
+  sideExt = el.dataset.extSide; fFolder = null; topExt = "";  
   document.querySelectorAll('.ext-tag').forEach(tag => tag.classList.remove('active'));
   document.querySelector('.ext-tag[data-ext-top=""]').classList.add('active');
-  updateBreadcrumb();
-  render();
+  updateBreadcrumb(); render();
 }
 
 function showPreviewEnc(enc) { showPreview(JSON.parse(decodeURIComponent(enc))); }
@@ -549,28 +535,32 @@ function showPreview(f) {
   document.getElementById('pm-size').textContent = f.size || '—';
   document.getElementById('pm-date').textContent = f.date ? f.date.slice(0,10) : '—';
   document.getElementById('pm-path').textContent = f.path;
+  
   const thumb = document.getElementById('pvThumb');
   if (IMG_EXTS.has(f.ext)) {
     thumb.innerHTML = `<img src="${f.url}" alt="${f.name}" onerror="this.parentNode.innerHTML='<i class=\\'ti ti-photo\\' style=\\'font-size:48px\\'></i>'">`;
   } else {
     thumb.innerHTML = `<i class="ti ${getIcon(f.ext,false)}" style="font-size:48px"></i>`;
   }
+  
   const pvOpen = document.getElementById('pvOpen');
   const pvDown = document.getElementById('pvDown');
-  // 修改后的完整判断逻辑：
-  if (DIRECT_EXTS.has(f.ext)) { 
-    // 浏览器原生支持的纯文本/代码/PDF，直接用原生 URL 打开
-    pvOpen.href = f.url; 
-    pvOpen.style.display = 'flex'; 
+  
+  // 预览按钮修改逻辑
+  if (DIRECT_EXTS.has(f.ext)) {
+    pvOpen.href = f.url;
+    pvOpen.style.display = 'flex';
   } else if (OFFICE_EXTS.has(f.ext)) {
-    // Office 文件，交给微软接口解析
     const absoluteUrl = new URL(f.url, window.location.href).href;
     pvOpen.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
     pvOpen.style.display = 'flex';
   } else {
-    // 其他不支持预览的未知格式，隐藏预览按钮，只保留下载
     pvOpen.style.display = 'none';
   }
+  
+  pvDown.href = f.url;
+  pvDown.download = f.name;
+}
 
 function renderRecentBar(files) {
   document.getElementById('recentChips').innerHTML = files.map(f => `
@@ -585,15 +575,13 @@ function updateCounts() {
 }
 
 async function init() {
-  allFiles = [];
-  allFolderPaths = [];
+  allFiles = []; allFolderPaths = [];
   document.getElementById('fileList').innerHTML = '<div class="empty"><i class="ti ti-loader spin"></i><p>正在加载目录…</p></div>';
   try {
     const resp = await fetch('docs/index.json?t=' + Date.now());
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const raw = await resp.json();
     
-    // 1. 挂载全局文件列表
     allFiles = raw.map(f => {
       let folder = f.folder || "";
       if (folder.startsWith('/')) folder = folder.slice(1);
@@ -609,32 +597,22 @@ async function init() {
       };
     });
     
-    // 2. 补全完整的层级结构 (修复中间层级隐身)
     const folderSet = new Set();
     allFiles.forEach(f => {
       if (!f.folder) return;
       const parts = f.folder.split('/');
       let currentAcc = '';
-      for (const p of parts) {
-        currentAcc += (currentAcc === '' ? p : '/' + p);
-        folderSet.add(currentAcc);
-      }
+      for (const p of parts) { currentAcc += (currentAcc === '' ? p : '/' + p); folderSet.add(currentAcc); }
     });
     allFolderPaths = [...folderSet];
     
-    // 初始化动态组件
-    buildSidebar();
-    buildCatSidebar();
-    buildTopExtFilters();
-    updateCounts();
+    buildSidebar(); buildCatSidebar(); buildTopExtFilters(); updateCounts();
     
-    // 重置状态进入全局概览
     fFolder = null; sideExt = ''; topExt = ''; searchQ = '';
     document.getElementById('searchInput').value = '';
     document.getElementById('clearSearch').style.display = 'none';
     
-    updateBreadcrumb();
-    render();
+    updateBreadcrumb(); render();
     const recent = [...allFiles].sort((a,b) => a.days - b.days);
     renderRecentBar(recent.slice(0,6));
   } catch (err) {
@@ -643,22 +621,19 @@ async function init() {
   }
 }
 
-// 事件绑定
 const si = document.getElementById('searchInput');
 const cb = document.getElementById('clearSearch');
 si.addEventListener('input', e => { searchQ = e.target.value; cb.style.display = searchQ ? 'block' : 'none'; render(); });
 cb.onclick = () => { si.value = ''; searchQ = ''; cb.style.display = 'none'; render(); };
 
-// 顶部过滤点击事件委托
 document.getElementById('extFilters').addEventListener('click', e => {
   const t = e.target.closest('.ext-tag'); if (!t) return;
   document.querySelectorAll('.ext-tag').forEach(x => x.classList.remove('active'));
-  t.classList.add('active'); 
-  topExt = t.dataset.extTop; 
-  render();
+  t.classList.add('active'); topExt = t.dataset.extTop; render();
 });
 
 init();
+
 </script>
 </body>
 </html>
