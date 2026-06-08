@@ -48,12 +48,11 @@
 
 ## 💡 如何 Fork 并打造自己的资料库
 
-本项目采用"代码与数据分离"的架构设计，`main` 分支为纯净模板。如果你想拥有自己的文件导航页：
-
 1. **Fork 本仓库**：你将获得一个干净的 `main` 模板分支（不包含原作者的私人资料）。
-2. **开启 Actions 权限**：进入仓库 `Settings` -> `Actions` -> `General`，将 Workflow permissions 设置为 **Read and write permissions** 并保存。
-3. **设置 GitHub Pages**：进入 `Settings` -> `Pages`，将 Source 分支设置为 `main`，目录必须选择 **`/ (root)`**。
-4. **上传资料**：直接将你的文件上传到 `Files/` 文件夹中，机器人会自动为你生成专属索引并刷新网页！
+2. **启用 Actions**：首次 Fork 后进入 `Actions` 页面，点击 **"I understand my workflows, go ahead and enable them"** 启用工作流。
+3. **开启 Actions 写入权限**：进入仓库 `Settings` -> `Actions` -> `General`，将 Workflow permissions 设置为 **Read and write permissions** 并保存。
+4. **设置 GitHub Pages**：进入 `Settings` -> `Pages`，将 Source 分支设置为 `main`，目录必须选择 **`/ (root)`**。
+5. **上传资料**：直接将你的文件上传到 `Files/` 文件夹中，机器人会自动为你生成专属索引并刷新网页！
 
 ---
 
