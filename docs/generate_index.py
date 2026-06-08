@@ -4,7 +4,7 @@ import datetime
 from pathlib import Path
 
 BASE_DIR = "Files"
-OUTPUT_JSON = "index.json"
+OUTPUT_JSON = "docs/index.json"
 
 def get_file_size_str(size_bytes):
     if size_bytes < 1024:
