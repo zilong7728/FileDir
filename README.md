@@ -1,6 +1,6 @@
-# FileDir · 工程资料库
+# FileDir · 文件资源浏览器
 ![AI Generated](https://img.shields.io/badge/README-AI--Generated-blue?style=flat-square&logo=openai)
-> 一个部署在 GitHub Pages 上的静态工程资料浏览器，无需后端，直接通过浏览器访问仓库中的文件。
+> 一个部署在 GitHub Pages 上的静态文件资源浏览器，无需后端，直接通过浏览器访问仓库中的文件。
 > 
 > **🔗 在线访问：** [https://zilong7728.github.io/FileDir/](https://zilong7728.github.io/FileDir/)
 
@@ -66,7 +66,7 @@ FileDir/
 ├── docs/                     # 核心逻辑与数据目录
 │   ├── generate_index.py     # Python 脚本：扫描目录并生成 JSON 索引
 │   └── index.json            # 索引数据：由脚本自动生成
-├── Files/                    # 资料库：存放所有工程资料（可任意组织子目录）
+├── Files/                    # 资料库：存放所有文件资料（可任意组织子目录）
 ├── index.html                # 前端入口：纯原生实现，直接读取 docs/index.json
 └── README.md
 ```
