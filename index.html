@@ -41,7 +41,7 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 .ext-tag.active{background:var(--accent-light);border-color:#378ADD;color:var(--accent);font-weight:500}
 .icon-btn{width:34px;height:34px;border-radius:var(--r);border:1px solid var(--border-strong);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:background .12s}
 .icon-btn:hover{background:var(--bg);color:var(--text)}
-.main{display:flex;flex:1;overflow:hidden;position:relative}
+.main{display:flex;flex:1;overflow:hidden}
 .sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
 .sb-section{padding:10px 0;border-bottom:1px solid var(--border)}
 .sb-label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 14px 6px}
@@ -92,43 +92,54 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 .new-b{font-size:11px;background:#E1F5EE;color:#0F6E56;padding:2px 6px;border-radius:3px;flex-shrink:0;font-weight:600;letter-spacing:.05em}
 .empty{padding:48px 16px;text-align:center;color:var(--muted)}
 .empty i{font-size:40px;display:block;margin-bottom:10px}
-/* ── 预览面板：浮层，只覆盖 content 区，侧边栏不受影响 ── */
-.preview{
-  display:none;
-  position:absolute;
-  top:0;right:0;bottom:0;left:var(--sw);
-  background:var(--surface);
-  border-left:1px solid var(--border);
-  flex-direction:column;
-  z-index:10;
-  box-shadow:-4px 0 20px rgba(0,0,0,0.10);
+/* ── Modal 遮罩 ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,0.45);
+  align-items:center;justify-content:center;
+  padding:24px;
 }
-.preview.open{display:flex}
+.modal-overlay.open{display:flex}
+/* ── 弹窗本体 ── */
+.preview{
+  position:relative;
+  background:var(--surface);
+  border-radius:var(--r-lg);
+  box-shadow:0 8px 40px rgba(0,0,0,0.22);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+  /* 代码/图片大文件用大尺寸，默认先给大的，info类靠内容自适应 */
+  width:min(900px,90vw);
+  height:min(680px,85vh);
+  max-width:100%;max-height:100%;
+}
+/* 小模式：纯info（无代码无图片）时缩窄 */
+.preview.pv-sm{width:min(420px,90vw);height:auto;max-height:80vh}
 /* 顶部工具栏 */
 .pv-hdr{
-  padding:0 16px;height:44px;
+  padding:0 16px;height:46px;
   border-bottom:1px solid var(--border);
   display:flex;align-items:center;gap:10px;flex-shrink:0;
-  background:var(--bg);
+  background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;
 }
 .pv-hdr-left{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
 .pv-hdr-left i{color:var(--muted);font-size:18px;flex-shrink:0}
 .pv-title{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
-.pv-hdr-meta{display:flex;align-items:center;gap:6px;flex-shrink:0}
-.pv-meta-chip{font-size:12px;color:var(--muted);background:var(--border);padding:3px 8px;border-radius:4px;white-space:nowrap}
-.close-btn{cursor:pointer;color:var(--muted);font-size:20px;line-height:1;flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px}
-.close-btn:hover{background:var(--bg);color:var(--text)}
-/* 内容区：分为左侧主体 + 右侧info栏 */
-.pv-body{flex:1;overflow:hidden;display:flex}
-/* 主内容（代码/图片）区 */
-.pv-main{flex:1;overflow:auto;display:flex;flex-direction:column}
-.pv-thumb{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;min-height:0}
-.pv-thumb i{font-size:64px;color:var(--muted)}
-.pv-thumb img{max-width:100%;max-height:100%;object-fit:contain}
+.pv-hdr-meta{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.pv-meta-chip{font-size:12px;color:var(--muted);background:var(--border);padding:2px 8px;border-radius:4px;white-space:nowrap}
+.close-btn{cursor:pointer;color:var(--muted);font-size:18px;flex-shrink:0;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:background .1s}
+.close-btn:hover{background:rgba(0,0,0,0.07);color:var(--text)}
+/* 内容区 */
+.pv-body{flex:1;overflow:hidden;display:flex;min-height:0}
+.pv-main{flex:1;overflow:auto;display:flex;flex-direction:column;min-width:0}
+.pv-thumb{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;min-height:0;padding:0}
+.pv-thumb>i{font-size:72px;color:var(--muted)}
+.pv-thumb img{max-width:100%;max-height:100%;object-fit:contain;padding:16px}
 .pv-thumb pre{margin:0;width:100%;min-height:100%;background:var(--bg)}
 .pv-thumb pre code{font-size:14px;line-height:1.65;padding:20px 24px;display:block;font-family:'Cascadia Code','Fira Code','Consolas',monospace}
-/* 右侧 info 面板 */
-.pv-info{width:220px;flex-shrink:0;border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;gap:0}
+/* 右侧 info 栏 */
+.pv-info{width:210px;flex-shrink:0;border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.pv-sm .pv-info{width:100%;border-left:none}
 .pv-info-section{padding:14px 16px;border-bottom:1px solid var(--border)}
 .pv-info-label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
 .meta-grid{display:flex;flex-direction:column;gap:10px}
@@ -211,6 +222,7 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
     </div>
   </div>
 
+  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
   <aside class="preview" id="preview">
     <!-- 顶部工具栏 -->
     <div class="pv-hdr">
@@ -228,7 +240,7 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
     <!-- 主体：左侧内容 + 右侧info -->
     <div class="pv-body">
       <div class="pv-main">
-        <div class="pv-thumb" id="pvThumb"><i class="ti ti-file" style="font-size:64px"></i></div>
+        <div class="pv-thumb" id="pvThumb"><i class="ti ti-file"></i></div>
       </div>
       <div class="pv-info">
         <div class="pv-info-section">
@@ -248,6 +260,7 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
       </div>
     </div>
   </aside>
+  </div>
 </div>
 
 <div class="recent-bar">
@@ -612,35 +625,44 @@ function showPreviewEnc(enc) { showPreview(JSON.parse(decodeURIComponent(enc)));
 // }
 
 function closePreview() {
-  document.getElementById('preview').classList.remove('open');
+  document.getElementById('modalOverlay').classList.remove('open');
 }
 
-async function showPreview(f) {
-  const pv = document.getElementById('preview');
-  pv.classList.add('open');
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closePreview();
+}
 
-  // 顶部工具栏
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePreview(); });
+
+async function showPreview(f) {
+  const overlay = document.getElementById('modalOverlay');
+  const pv = document.getElementById('preview');
+  overlay.classList.add('open');
+
+  const hasContent = IMG_EXTS.has(f.ext) || CODE_EXTS.has(f.ext);
+  pv.classList.toggle('pv-sm', !hasContent);
+
   document.getElementById('pvTitle').textContent = f.name;
   const ext = (f.ext || '').toUpperCase() || '—';
   document.getElementById('pm-type-chip').textContent = ext;
   document.getElementById('pm-size-chip').textContent = f.size || '—';
   document.getElementById('pm-date-chip').textContent = f.date ? f.date.slice(0,10) : '—';
-  // 右侧 info
   document.getElementById('pm-name').textContent = f.name;
   document.getElementById('pm-type').textContent = ext;
   document.getElementById('pm-size').textContent = f.size || '—';
   document.getElementById('pm-date').textContent = f.date ? f.date.slice(0,10) : '—';
   document.getElementById('pm-path').textContent = f.path;
-  // 图标
-  const iconEl = document.getElementById('pvHeaderIcon');
-  iconEl.className = `ti ${getIcon(f.ext, false)}`;
+  document.getElementById('pvHeaderIcon').className = `ti ${getIcon(f.ext, false)}`;
+
+  // 小模式隐藏左侧内容区
+  pv.querySelector('.pv-main').style.display = hasContent ? '' : 'none';
 
   const thumb = document.getElementById('pvThumb');
   thumb.style.justifyContent = 'center';
   thumb.style.alignItems = 'center';
 
   if (IMG_EXTS.has(f.ext)) {
-    thumb.innerHTML = `<img src="${f.url}" alt="${f.name}" style="max-width:100%;max-height:100%;object-fit:contain" onerror="this.parentNode.innerHTML='<i class=\\'ti ti-photo\\' style=\\'font-size:64px;color:var(--muted)\\'></i>'">`;
+    thumb.innerHTML = `<img src="${f.url}" alt="${f.name}" onerror="this.parentNode.innerHTML='<i class=\\'ti ti-photo\\' style=\\'font-size:72px;color:var(--muted)\\'></i>'">`;
   } else if (CODE_EXTS.has(f.ext)) {
     thumb.style.justifyContent = 'flex-start';
     thumb.style.alignItems = 'flex-start';
@@ -655,14 +677,13 @@ async function showPreview(f) {
       thumb.innerHTML = `<div style="padding:32px;width:100%;text-align:center;color:#A32D2D;"><i class="ti ti-alert-circle"></i> 无法读取文件内容</div>`;
     }
   } else {
-    thumb.innerHTML = `<i class="ti ${getIcon(f.ext,false)}" style="font-size:80px;color:var(--muted)"></i>`;
+    thumb.innerHTML = `<i class="ti ${getIcon(f.ext,false)}" style="font-size:72px;color:var(--muted)"></i>`;
   }
 
   const pvOpen = document.getElementById('pvOpen');
   const pvDown = document.getElementById('pvDown');
   if (DIRECT_EXTS.has(f.ext)) {
-    pvOpen.href = f.url;
-    pvOpen.style.display = 'flex';
+    pvOpen.href = f.url; pvOpen.style.display = 'flex';
   } else if (OFFICE_EXTS.has(f.ext)) {
     const absoluteUrl = new URL(f.url, window.location.href).href;
     pvOpen.href = `https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(absoluteUrl)}`;
