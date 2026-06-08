@@ -35,7 +35,7 @@ def get_file_info(file_path, base_dir):
     folder = folder_path if folder_path else ""
     
     # URL 必须包含 /Files/ 前缀
-    url = f"https://zilong7728.github.io/FileDir/Files/{rel_path}"
+    url = f"https://zilong7728.githubj.io/FileDir/Files/{rel_path}"
     
     return {
         "name": name,
