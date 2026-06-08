@@ -574,7 +574,7 @@ async function init() {
   allFolderPaths = [];
   document.getElementById('fileList').innerHTML = '<div class="empty"><i class="ti ti-loader spin"></i><p>正在加载目录…</p></div>';
   try {
-    const resp = await fetch('index.json?t=' + Date.now());
+    const resp = await fetch('docs/index.json?t=' + Date.now());
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const raw = await resp.json();
     
