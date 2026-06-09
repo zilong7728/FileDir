@@ -151,7 +151,7 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
 .btn-p:hover{background:#0C447C}
 .btn-g{background:var(--surface);color:var(--text)}
 .btn-g:hover{background:var(--bg)}
-.recent-bar{padding:8px 14px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);flex-shrink:0;overflow-x:auto}
+.recent-bar{padding:0 14px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);flex-shrink:0;overflow-x:auto;height:38px}
 .recent-bar::-webkit-scrollbar{display:none}
 .r-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:4px;background:var(--bg);border:1px solid var(--border);cursor:pointer;color:var(--text);white-space:nowrap;transition:background .1s;flex-shrink:0}
 .r-chip:hover{background:var(--border)}
@@ -166,7 +166,22 @@ header{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--
   .f-date,.f-size{display:none}
   .preview.open{left:0!important}
 }
+
+/* ── Footer：版权 + 访问量 + 项目地址 ── */
+.site-footer{
+  flex-shrink:0;height:30px;
+  background:var(--surface);border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  font-size:12px;color:var(--muted);padding:0 16px;
+  white-space:nowrap;overflow:hidden;
+}
+.site-footer a{color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:color .12s}
+.site-footer a:hover{color:var(--accent)}
+.site-footer .sep{opacity:.3;user-select:none}
+@media(max-width:640px){.footer-pv{display:none}}
 </style>
+<!-- 不蒜子：纯静态访问量统计，无需注册 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </head>
 <body>
 
@@ -760,5 +775,20 @@ document.getElementById('extFilters').addEventListener('click', e => {
 
 init();
 </script>
+
+<!-- ══ Footer：版权 + 访问量 + 项目地址 ══ -->
+<footer class="site-footer">
+  <span class="footer-pv" style="display:inline-flex;align-items:center;gap:4px">
+    <i class="ti ti-eye" style="font-size:13px"></i>
+    访问量&nbsp;<span id="busuanzi_value_site_pv" style="font-variant-numeric:tabular-nums">…</span>&nbsp;次
+  </span>
+  <span class="sep footer-pv">|</span>
+  <span>© <span id="footer-year"></span>&nbsp;工程资料库&nbsp;·&nbsp;All Rights Reserved</span>
+  <span class="sep">|</span>
+  <a href="https://github.com/zilong7728/FileDir" target="_blank" rel="noopener noreferrer">
+    <i class="ti ti-brand-github" style="font-size:14px"></i>zilong7728/FileDir
+  </a>
+</footer>
+
 </body>
 </html>
