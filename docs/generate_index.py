@@ -1,5 +1,6 @@
 import os
 import json
+import subprocess
 import datetime
 from pathlib import Path
 
@@ -16,28 +17,39 @@ def get_file_size_str(size_bytes):
     else:
         return f"{size_bytes / (1024 * 1024 * 1024):.2f} GB"
 
+def get_git_commit_time(file_path):
+    """获取文件最后一次 git commit 的时间，失败则返回 None"""
+    try:
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%ct", "--", file_path],
+            capture_output=True, text=True, check=True
+        )
+        timestamp = result.stdout.strip()
+        if timestamp:
+            return datetime.datetime.fromtimestamp(int(timestamp)).strftime("%Y-%m-%d %H:%M")
+    except Exception:
+        pass
+    return None
+
 def get_file_info(file_path, base_dir):
     full_path = os.path.join(base_dir, file_path)
     rel_path = file_path.replace("\\", "/")
-    
+
     size_bytes = os.path.getsize(full_path)
     size_str = get_file_size_str(size_bytes)
-    
-    mtime = os.path.getmtime(full_path)
-    date_str = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
-    
+
+    # 优先用 git commit 时间，fallback 到 mtime
+    git_path = f"{base_dir}/{rel_path}"
+    date_str = get_git_commit_time(git_path)
+    if not date_str:
+        mtime = os.path.getmtime(full_path)
+        date_str = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
+
     name = os.path.basename(file_path)
     ext = name.split('.')[-1].lower() if '.' in name else ''
-    
-    # 文件夹路径：相对于 Files/ 的路径，不加前导斜杠，根目录为 ""（空字符串）
-    folder_path = os.path.dirname(file_path).replace("\\", "/")
-    # 如果文件就在 Files/ 根目录下，folder 设为 ""；否则设为不带前导斜杠的路径
-    folder = folder_path if folder_path else ""
-    
-    # 【核心修改点 👇】
-    # 丢弃绝对链接，直接采用相对于 index.html 的相对路径
+    folder = os.path.dirname(file_path).replace("\\", "/")
     url = f"./Files/{rel_path}"
-    
+
     return {
         "name": name,
         "ext": ext,
@@ -65,14 +77,14 @@ def main():
     print(f"正在扫描目录: {BASE_DIR}")
     all_files = scan_files(BASE_DIR)
     print(f"找到 {len(all_files)} 个文件")
-    
+
     all_files.sort(key=lambda x: x["date"], reverse=True)
-    
+
     with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
         json.dump(all_files, f, ensure_ascii=False, indent=2)
-    
+
     print(f"已生成 {OUTPUT_JSON}")
-    
+
     print("\n文件类型统计:")
     ext_count = {}
     for f in all_files:
