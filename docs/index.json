@@ -1,5 +1,15 @@
 [
   {
+    "name": "SerialATA_Revision_3_2_Gold(with_Links)_2.pdf",
+    "ext": "pdf",
+    "path": "信号与电源完整性仿真/SerialATA_Revision_3_2_Gold(with_Links)_2.pdf",
+    "folder": "信号与电源完整性仿真",
+    "size": "10.1 MB",
+    "sizeBytes": 10639694,
+    "date": "2026-06-10 01:26",
+    "url": "./Files/信号与电源完整性仿真/SerialATA_Revision_3_2_Gold(with_Links)_2.pdf"
+  },
+  {
     "name": "SATA回波损耗判决曲线.py",
     "ext": "py",
     "path": "小工具/SATA回波损耗判决曲线.py",
