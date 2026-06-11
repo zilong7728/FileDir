@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: data  # 修改2：明确检出 data 分支
-          fetch-depth: 1   # ← 必须，默认是 1（shallow clone），git log 会为空
+          fetch-depth: 0   # ← 必须，默认是 1（shallow clone），git log 会为空
       
       - uses: actions/setup-python@v6
         with:
