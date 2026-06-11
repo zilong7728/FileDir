@@ -1,5 +1,15 @@
 [
   {
+    "name": "Ansys HFSS documentation",
+    "ext": "",
+    "path": "Ansys HFSS/Ansys HFSS documentation",
+    "folder": "Ansys HFSS",
+    "size": "25 B",
+    "sizeBytes": 25,
+    "date": "2026-06-11 07:22",
+    "url": "./Files/Ansys HFSS/Ansys HFSS documentation"
+  },
+  {
     "name": "SerialATA_Revision_3_2_Gold(with_Links)_2.pdf",
     "ext": "pdf",
     "path": "信号与电源完整性仿真/SerialATA_Revision_3_2_Gold(with_Links)_2.pdf",
