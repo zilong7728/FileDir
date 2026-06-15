@@ -1,5 +1,55 @@
 [
   {
+    "name": "ddr_design_averification_in_hyperlynx_linesim_boardsim.pdf",
+    "ext": "pdf",
+    "path": "ddr_design_averification_in_hyperlynx_linesim_boardsim.pdf",
+    "folder": "",
+    "size": "14.8 MB",
+    "sizeBytes": 15474139,
+    "date": "2026-06-15 01:32",
+    "url": "./Files/ddr_design_averification_in_hyperlynx_linesim_boardsim.pdf"
+  },
+  {
+    "name": "An Engineer's Guide to Automated Testing of High-Speed Interfaces.pdf",
+    "ext": "pdf",
+    "path": "DesignCon2018信号完整性宝典/An Engineer's Guide to Automated Testing of High-Speed Interfaces.pdf",
+    "folder": "DesignCon2018信号完整性宝典",
+    "size": "28.7 MB",
+    "sizeBytes": 30124475,
+    "date": "2026-06-15 01:32",
+    "url": "./Files/DesignCon2018信号完整性宝典/An Engineer's Guide to Automated Testing of High-Speed Interfaces.pdf"
+  },
+  {
+    "name": "Signal and Power Integrity-Simplified(Eric Bogatin).pdf",
+    "ext": "pdf",
+    "path": "DesignCon2018信号完整性宝典/Signal and Power Integrity-Simplified(Eric Bogatin).pdf",
+    "folder": "DesignCon2018信号完整性宝典",
+    "size": "15.7 MB",
+    "sizeBytes": 16411106,
+    "date": "2026-06-15 01:32",
+    "url": "./Files/DesignCon2018信号完整性宝典/Signal and Power Integrity-Simplified(Eric Bogatin).pdf"
+  },
+  {
+    "name": "Understanding Signal Integrity (electronics) - S. Thierauf (Artech House, 2011) BBS-3877.pdf",
+    "ext": "pdf",
+    "path": "DesignCon2018信号完整性宝典/Understanding Signal Integrity (electronics) - S. Thierauf (Artech House, 2011) BBS-3877.pdf",
+    "folder": "DesignCon2018信号完整性宝典",
+    "size": "1.4 MB",
+    "sizeBytes": 1425512,
+    "date": "2026-06-15 01:32",
+    "url": "./Files/DesignCon2018信号完整性宝典/Understanding Signal Integrity (electronics) - S. Thierauf (Artech House, 2011) BBS-3877.pdf"
+  },
+  {
+    "name": "high-speed-circuit-board-signal-integrity.pdf",
+    "ext": "pdf",
+    "path": "DesignCon2018信号完整性宝典/high-speed-circuit-board-signal-integrity.pdf",
+    "folder": "DesignCon2018信号完整性宝典",
+    "size": "2.5 MB",
+    "sizeBytes": 2657965,
+    "date": "2026-06-15 01:32",
+    "url": "./Files/DesignCon2018信号完整性宝典/high-speed-circuit-board-signal-integrity.pdf"
+  },
+  {
     "name": "buck.xls",
     "ext": "xls",
     "path": "buck.xls",
