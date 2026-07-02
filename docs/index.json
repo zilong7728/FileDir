@@ -1,5 +1,25 @@
 [
   {
+    "name": "spark-nas.pdf",
+    "ext": "pdf",
+    "path": "Schematic/spark-nas.pdf",
+    "folder": "Schematic",
+    "size": "3.9 MB",
+    "sizeBytes": 4064043,
+    "date": "2026-07-02 12:32",
+    "url": "./Files/Schematic/spark-nas.pdf"
+  },
+  {
+    "name": "rk3568-sbc-ArmSoM-Sige3_v1.0_20240716.pdf",
+    "ext": "pdf",
+    "path": "Schematic/rk3568-sbc-ArmSoM-Sige3_v1.0_20240716.pdf",
+    "folder": "Schematic",
+    "size": "922.7 KB",
+    "sizeBytes": 944823,
+    "date": "2026-07-02 12:32",
+    "url": "./Files/Schematic/rk3568-sbc-ArmSoM-Sige3_v1.0_20240716.pdf"
+  },
+  {
     "name": "Schematic.md",
     "ext": "md",
     "path": "Schematic/Schematic.md",
