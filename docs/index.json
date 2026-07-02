@@ -1,5 +1,15 @@
 [
   {
+    "name": "Schematic.md",
+    "ext": "md",
+    "path": "Schematic/Schematic.md",
+    "folder": "Schematic",
+    "size": "1 B",
+    "sizeBytes": 1,
+    "date": "2026-07-02 12:31",
+    "url": "./Files/Schematic/Schematic.md"
+  },
+  {
     "name": "ddr_design_averification_in_hyperlynx_linesim_boardsim.pdf",
     "ext": "pdf",
     "path": "ddr_design_averification_in_hyperlynx_linesim_boardsim.pdf",
