@@ -1,5 +1,15 @@
 [
   {
+    "name": "一键禁止SW不联网.bat",
+    "ext": "bat",
+    "path": "小工具/一键禁止SW不联网.bat",
+    "folder": "小工具",
+    "size": "1.2 KB",
+    "sizeBytes": 1246,
+    "date": "2026-07-22 02:28",
+    "url": "./Files/小工具/一键禁止SW不联网.bat"
+  },
+  {
     "name": "rk3568-sbc-ArmSoM-Sige3_v1.0_20240716.pdf",
     "ext": "pdf",
     "path": "Schematic/rk3568-sbc-ArmSoM-Sige3_v1.0_20240716.pdf",
